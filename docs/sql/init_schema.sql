@@ -25,12 +25,14 @@ CREATE TABLE sys_user (
     real_name                   VARCHAR(50)  NOT NULL                COMMENT '真实姓名',
     status                      TINYINT      NOT NULL DEFAULT 1      COMMENT '状态: 1=启用, 0=禁用',
     first_login                 TINYINT      NOT NULL DEFAULT 1      COMMENT '是否首次登录: 1=是, 0=否',
-    last_password_change_time   DATETIME              DEFAULT NULL    COMMENT '最后密码修改时间',
-    created_at                  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP                                 COMMENT '创建时间',
-    updated_at                  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP   COMMENT '更新时间',
+    last_password_change_time   DATETIME DEFAULT NULL COMMENT '最后密码修改时间',
+	student_id                  BIGINT DEFAULT NULL COMMENT '助教账号关联的学生记录主键',
+	created_at                  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at                  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP   COMMENT '更新时间',
     deleted                     TINYINT      NOT NULL DEFAULT 0      COMMENT '逻辑删除: 0=未删除, 1=已删除',
     PRIMARY KEY (id),
-    UNIQUE KEY uk_sys_user_username (username)
+    UNIQUE KEY uk_sys_user_username (username),
+    KEY idx_sys_user_student_id (student_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统用户表';
 
 -- ---------------------------------------------------------------------
@@ -91,20 +93,26 @@ CREATE TABLE classes (
 -- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS student;
 CREATE TABLE student (
-    id          BIGINT      NOT NULL AUTO_INCREMENT  COMMENT '主键ID',
-    student_id  VARCHAR(50) NOT NULL                COMMENT '学号',
-    name        VARCHAR(50) NOT NULL                COMMENT '学生姓名',
-    class_id    BIGINT       NOT NULL                COMMENT '班级ID',
-    gender      TINYINT      NOT NULL DEFAULT 0      COMMENT '性别: 0=未知, 1=男, 2=女',
-    status      TINYINT      NOT NULL DEFAULT 1      COMMENT '状态: 1=在读, 0=停用',
-    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP                                 COMMENT '创建时间',
-    updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP   COMMENT '更新时间',
-    deleted     TINYINT      NOT NULL DEFAULT 0      COMMENT '逻辑删除: 0=未删除, 1=已删除',
+    id                  BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    student_id          VARCHAR(50) NOT NULL COMMENT '学号',
+    name                VARCHAR(50) NOT NULL COMMENT '学生姓名',
+    class_id            BIGINT               DEFAULT NULL COMMENT '所属班级ID，助教导入时可暂时为空',
+    gender              TINYINT     NOT NULL DEFAULT 0 COMMENT '性别: 0=未知, 1=男, 2=女',
+    status              TINYINT     NOT NULL DEFAULT 1 COMMENT '状态: 1=在读, 0=停用',
+    is_assistant        TINYINT     NOT NULL DEFAULT 0 COMMENT '是否助教: 0=否, 1=是',
+    assigned_class_id   BIGINT               DEFAULT NULL COMMENT '助教负责的班级ID',
+    created_at          DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at          DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                          ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted             TINYINT     NOT NULL DEFAULT 0 COMMENT '逻辑删除: 0=未删除, 1=已删除',
     PRIMARY KEY (id),
     UNIQUE KEY uk_student_student_id (student_id),
-    KEY idx_student_class_id (class_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='学生表';
-
+    KEY idx_student_class_id (class_id),
+    KEY idx_student_assigned_class_id (assigned_class_id)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci
+  COMMENT='学生表';
 -- ---------------------------------------------------------------------
 -- 初始化角色数据
 -- ---------------------------------------------------------------------

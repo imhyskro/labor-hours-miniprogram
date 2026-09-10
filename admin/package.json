@@ -1,0 +1,32 @@
+{
+  "name": "labor-management-admin",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "劳动学时管理 - 教师管理端 (Vue3 + TS + Vite + Element Plus)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "axios": "1.6.8",
+    "element-plus": "2.7.2",
+    "pinia": "2.1.7",
+    "vue": "3.4.21",
+    "vue-router": "4.3.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "20.12.7",
+    "@vitejs/plugin-vue": "5.0.4",
+    "sass": "1.75.0",
+    "typescript": "5.4.5",
+    "unplugin-auto-import": "0.17.5",
+    "unplugin-vue-components": "0.27.0",
+    "vite": "5.2.8",
+    "vue-tsc": "2.0.13"
+  }
+}

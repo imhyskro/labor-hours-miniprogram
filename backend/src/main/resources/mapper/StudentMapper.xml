@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labor.management.mapper.StudentMapper">
+
+    <!-- 公共字段映射片段（总表查询） -->
+    <sql id="masterListColumns">
+        s.id                                                          AS id,
+        s.student_id                                                  AS studentId,
+        s.name                                                        AS name,
+        s.gender                                                      AS gender,
+        s.class_id                                                    AS classId,
+        c.class_name                                                  AS className,
+        s.is_assistant                                                AS isAssistant,
+        CASE WHEN s.is_assistant = 1 THEN '助教' ELSE '学生' END       AS identity,
+        s.assigned_class_id                                           AS assignedClassId,
+        c2.class_name                                                 AS assignedClassName,
+        CASE WHEN u.id IS NOT NULL THEN 1 ELSE 0 END                  AS hasAccount
+    </sql>
+
+    <!-- 总表关联：LEFT JOIN classes (所属) + classes c2 (负责) + sys_user (账号) -->
+    <sql id="masterListJoins">
+        LEFT JOIN classes c ON s.class_id = c.id
+        LEFT JOIN classes c2 ON s.assigned_class_id = c2.id
+        LEFT JOIN sys_user u ON u.student_id = s.id AND u.deleted = 0
+    </sql>
+
+    <!-- 分页查询学生（关联班级表获取班级名称） -->
+    <select id="selectStudentPage" resultType="com.labor.management.vo.StudentVO">
+        SELECT
+            s.id,
+            s.student_id      AS studentId,
+            s.name,
+            s.class_id        AS classId,
+            c.class_name      AS className,
+            s.gender,
+            s.status,
+            s.created_at      AS createdAt
+        FROM student s
+        LEFT JOIN classes c ON s.class_id = c.id
+        WHERE s.deleted = 0
+        <if test="keyword != null and keyword != ''">
+            AND (s.student_id LIKE CONCAT('%', #{keyword}, '%')
+                 OR s.name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="classId != null">
+            AND s.class_id = #{classId}
+        </if>
+        ORDER BY s.created_at DESC
+    </select>
+
+    <!-- 总表分页查询（关联 classes + sys_user） -->
+    <select id="selectMasterListPage" resultType="com.labor.management.vo.MasterListViewVO">
+        SELECT
+        <include refid="masterListColumns"/>
+        FROM student s
+        <include refid="masterListJoins"/>
+        WHERE s.deleted = 0
+        <if test="keyword != null and keyword != ''">
+            AND (s.student_id LIKE CONCAT('%', #{keyword}, '%')
+                 OR s.name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="classId != null">
+            AND s.class_id = #{classId}
+        </if>
+        <if test="identity != null and identity == 'ASSISTANT'">
+            AND s.is_assistant = 1
+        </if>
+        <if test="identity != null and identity == 'STUDENT'">
+            AND s.is_assistant = 0
+        </if>
+        ORDER BY s.is_assistant DESC, s.created_at DESC
+    </select>
+
+    <!-- 查询未分配（负责班级）的助教列表 -->
+    <select id="selectUnassignedAssistants" resultType="com.labor.management.vo.MasterListViewVO">
+        SELECT
+        <include refid="masterListColumns"/>
+        FROM student s
+        <include refid="masterListJoins"/>
+        WHERE s.deleted = 0
+          AND s.is_assistant = 1
+          AND s.assigned_class_id IS NULL
+        ORDER BY s.created_at DESC
+    </select>
+
+</mapper>

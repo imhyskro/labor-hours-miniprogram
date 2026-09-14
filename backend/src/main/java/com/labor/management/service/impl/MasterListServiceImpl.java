@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+
 /**
  * 总表 Service 实现
  */
@@ -20,10 +22,11 @@ public class MasterListServiceImpl implements MasterListService {
 
     @Override
     public IPage<MasterListViewVO> getMasterList(Integer page, Integer size,
-                                                 String keyword, Long classId, String identity) {
+                                                 String keyword, Long companyId, Long classId, String identity,
+                                                 List<Long> scopeClassIds) {
         Page<MasterListViewVO> pageParam = new Page<>(page == null ? 1 : page, size == null ? 10 : size);
         String kw = StringUtils.hasText(keyword) ? keyword.trim() : null;
         String idt = StringUtils.hasText(identity) ? identity.trim() : null;
-        return studentMapper.selectMasterListPage(pageParam, kw, classId, idt);
+        return studentMapper.selectMasterListPage(pageParam, kw, companyId, classId, idt, scopeClassIds);
     }
 }

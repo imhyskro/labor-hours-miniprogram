@@ -1,8 +1,8 @@
 package com.labor.management.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -10,23 +10,21 @@ import java.io.Serializable;
  * 班级修改 DTO
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class ClassUpdateDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @NotNull(message = "ID不能为空")
     private Long id;
 
-    @NotBlank(message = "班级名称不能为空")
-    private String className;
+    @NotNull(message = "周次不能为空")
+    private Integer week;
 
-    @NotBlank(message = "班级节次不能为空")
-    private String classCode;
+    @NotNull(message = "开始节次不能为空")
+    private Integer startSession;
 
-    @NotBlank(message = "学年不能为空")
-    private String academicYear;
+    @NotNull(message = "结束节次不能为空")
+    private Integer endSession;
 
-    /** 状态: 1=启用, 0=停用 */
-    @NotNull(message = "状态不能为空")
     private Integer status;
 }

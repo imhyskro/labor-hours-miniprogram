@@ -26,6 +26,12 @@ public class StudentUpdateDTO implements Serializable {
     @NotNull(message = "班级ID不能为空")
     private Long classId;
 
+    /** 班级内编号 N（可选） */
+    private Integer studentNoInClass;
+
+    /** 原始专业（可选） */
+    private String originalMajor;
+
     /** 性别: 1=男, 2=女 */
     private Integer gender;
 

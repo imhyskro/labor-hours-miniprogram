@@ -29,15 +29,21 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'classes',
-        name: 'Classes',
-        component: () => import('@/views/ClassesView.vue'),
+        name: 'Companies',
+        component: () => import('@/views/CompaniesView.vue'),
         meta: { title: '班级管理', icon: 'OfficeBuilding' },
       },
       {
+        path: 'classes/:companyId',
+        name: 'CompanyDetail',
+        component: () => import('@/views/CompanyDetailView.vue'),
+        meta: { title: '公司详情', icon: 'OfficeBuilding' },
+      },
+      {
         path: 'students',
-        name: 'Students',
-        component: () => import('@/views/StudentsView.vue'),
-        meta: { title: '学生管理', icon: 'User' },
+        name: 'AssistantsManage',
+        component: () => import('@/views/AssistantsManageView.vue'),
+        meta: { title: '助教管理', icon: 'User' },
       },
       {
         path: 'import/students',
@@ -56,12 +62,6 @@ const routes: RouteRecordRaw[] = [
         name: 'MasterList',
         component: () => import('@/views/MasterListView.vue'),
         meta: { title: '学生总表', icon: 'Document' },
-      },
-      {
-        path: 'assistants/assignment',
-        name: 'AssistantAssignment',
-        component: () => import('@/views/AssignmentView.vue'),
-        meta: { title: '助教分配', icon: 'Connection' },
       },
       {
         path: 'users',

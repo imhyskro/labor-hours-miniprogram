@@ -21,10 +21,14 @@ async function handleDownloadTemplate() {
   }
 }
 
-function handleFileSelect(file: File) {
-  doImport(file);
-  // 阻止 el-upload 默认上传行为
-  return false;
+/**
+ * 文件选择回调（auto-upload=false 时 before-upload 不触发，
+ * 必须用 on-change 捕获文件）
+ */
+function handleChange(uploadFile: { raw?: File }) {
+  if (uploadFile.raw) {
+    doImport(uploadFile.raw);
+  }
 }
 
 async function doImport(file: File) {
@@ -62,8 +66,8 @@ function saveBlob(blob: Blob, fileName: string) {
   window.URL.revokeObjectURL(url);
 }
 
-function reasonType(reason: string): 'error' | 'info' {
-  return reason.includes('已是助教') ? 'info' : 'error';
+function reasonType(reason: string): 'danger' | 'info' {
+  return reason.includes('已是助教') ? 'info' : 'danger';
 }
 </script>
 
@@ -81,9 +85,11 @@ function reasonType(reason: string): 'error' | 'info' {
         show-icon
       >
         <ul class="rule-list">
-          <li>学号必须不存在（已存在的学号会在错误详情中显示）</li>
-          <li>班级名称必须已存在于班级管理中（不存在会报错）</li>
-          <li>性别列填"男"或"女"，留空或非预期值按未知处理</li>
+          <li>列顺序：学号 / 姓名 / 公司名称 / 周次 / 开始节次 / 结束节次 / 班内编号 / 原始专业 / 性别</li>
+          <li>公司名称必须已在「班级管理」中创建（如 茶园、果园），不存在会报错</li>
+          <li>班级按「公司+周次+开始节次+结束节次」自动匹配，不存在会自动创建</li>
+          <li>班内编号为该学生在班级中的序号 N，同一班级内不能重复</li>
+          <li>学号必须不存在；性别填"男"或"女"，留空按未知处理</li>
           <li>模板第 1 行为表头，请勿修改</li>
         </ul>
       </el-alert>
@@ -98,7 +104,7 @@ function reasonType(reason: string): 'error' | 'info' {
           :auto-upload="false"
           :show-file-list="false"
           accept=".xlsx,.xls"
-          :before-upload="handleFileSelect"
+          :on-change="handleChange"
         >
           <el-button type="primary" :loading="loading">
             <el-icon><Upload /></el-icon>

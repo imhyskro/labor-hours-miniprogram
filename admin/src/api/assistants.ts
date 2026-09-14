@@ -1,26 +1,61 @@
 import request, { type CommonResult } from '@/utils/request';
-import type { MasterListViewVO } from './masterList';
 
-/** 查询未分配（负责班级）的助教列表 */
-export function getUnassignedAssistants(): Promise<CommonResult<MasterListViewVO[]>> {
+/** 助教 VO */
+export interface AssistantVO {
+  id: number;
+  studentId: string;
+  name: string;
+  gender: number;
+  originalMajor: string | null;
+  companyName: string | null;
+  classCode: string | null;
+  className: string | null;
+  studentNoInClass: number | null;
+  fullNo: string | null;
+  hasAccount: number;
+  assignedClassCount: number;
+  assignedClassNames: string | null;
+}
+
+/** 助教分页结果 */
+export interface AssistantPage {
+  records: AssistantVO[];
+  total: number;
+  current: number;
+  size: number;
+}
+
+/** 助教分页查询 */
+export function getAssistantPage(
+  page = 1,
+  size = 10,
+  keyword?: string
+): Promise<CommonResult<AssistantPage>> {
   return request
-    .get<CommonResult<MasterListViewVO[]>>('/assistants/unassigned')
+    .get<CommonResult<AssistantPage>>('/assistants/page', { params: { page, size, keyword } })
     .then((res) => res.data);
 }
 
-/** 分配助教到班级（请求体：{ classId }） */
-export function assignAssistant(
+/** 查询助教当前负责的班级ID列表 */
+export function getAssistantClassIds(studentId: number): Promise<CommonResult<number[]>> {
+  return request
+    .get<CommonResult<number[]>>(`/assistants/${studentId}/classes`)
+    .then((res) => res.data);
+}
+
+/** 设置助教负责的班级（全量覆盖，classIds 为空数组表示清空） */
+export function assignAssistantClasses(
   studentId: number,
-  classId: number
+  classIds: number[]
 ): Promise<CommonResult<null>> {
   return request
-    .put<CommonResult<null>>(`/assistants/${studentId}/assign`, { classId })
+    .put<CommonResult<null>>(`/assistants/${studentId}/classes`, { classIds })
     .then((res) => res.data);
 }
 
-/** 取消助教的班级分配 */
-export function unassignAssistant(studentId: number): Promise<CommonResult<null>> {
+/** 取消助教身份，恢复为普通学生 */
+export function revokeAssistant(studentId: number): Promise<CommonResult<null>> {
   return request
-    .put<CommonResult<null>>(`/assistants/${studentId}/unassign`)
+    .put<CommonResult<null>>(`/assistants/${studentId}/revoke`)
     .then((res) => res.data);
 }

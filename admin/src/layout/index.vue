@@ -85,7 +85,7 @@ function handleMenuSelect(index: string): void {
             </el-menu-item>
             <el-menu-item index="/students">
               <el-icon><User /></el-icon>
-              <span>学生管理</span>
+              <span>助教管理</span>
             </el-menu-item>
             <el-menu-item index="/import/students">
               <el-icon><Upload /></el-icon>
@@ -98,10 +98,6 @@ function handleMenuSelect(index: string): void {
             <el-menu-item index="/master-list">
               <el-icon><Document /></el-icon>
               <span>学生总表</span>
-            </el-menu-item>
-            <el-menu-item index="/assistants/assignment">
-              <el-icon><Connection /></el-icon>
-              <span>助教分配</span>
             </el-menu-item>
           </el-sub-menu>
 

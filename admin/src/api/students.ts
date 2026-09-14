@@ -33,6 +33,8 @@ export interface StudentCreateDTO {
   studentId: string;
   name: string;
   classId: number;
+  studentNoInClass?: number | null;
+  originalMajor?: string | null;
   gender: number;
 }
 

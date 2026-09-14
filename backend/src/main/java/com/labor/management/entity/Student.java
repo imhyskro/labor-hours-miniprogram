@@ -31,20 +31,23 @@ public class Student implements Serializable {
     /** 学生姓名 */
     private String name;
 
-    /** 班级ID */
+    /** 所属班级ID（助教可能非本学期学生，允许为空） */
     private Long classId;
 
     /** 性别: 0=未知, 1=男, 2=女 */
     private Integer gender;
+
+    /** 原始专业（学生本来的专业） */
+    private String originalMajor;
+
+    /** 班级内编号（完整编号 W-S-E-N 中的 N） */
+    private Integer studentNoInClass;
 
     /** 状态: 1=在读, 0=停用 */
     private Integer status;
 
     /** 是否助教: 0=否, 1=是 */
     private Integer isAssistant;
-
-    /** 助教负责班级ID（一个助教最多负责一个班级；一个班级可有多个助教） */
-    private Long assignedClassId;
 
     /** 创建时间 */
     private LocalDateTime createdAt;

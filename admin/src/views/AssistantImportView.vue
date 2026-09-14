@@ -20,9 +20,14 @@ async function handleDownloadTemplate() {
   }
 }
 
-function handleFileSelect(file: File) {
-  doImport(file);
-  return false;
+/**
+ * 文件选择回调（auto-upload=false 时 before-upload 不触发，
+ * 必须用 on-change 捕获文件）
+ */
+function handleChange(uploadFile: { raw?: File }) {
+  if (uploadFile.raw) {
+    doImport(uploadFile.raw);
+  }
 }
 
 async function doImport(file: File) {
@@ -59,8 +64,8 @@ function saveBlob(blob: Blob, fileName: string) {
   window.URL.revokeObjectURL(url);
 }
 
-function reasonType(reason: string): 'error' | 'info' {
-  return reason.includes('已是助教') ? 'info' : 'error';
+function reasonType(reason: string): 'danger' | 'info' {
+  return reason.includes('已是助教') ? 'info' : 'danger';
 }
 </script>
 
@@ -78,12 +83,12 @@ function reasonType(reason: string): 'error' | 'info' {
         show-icon
       >
         <ul class="rule-list">
-          <li>助教可非本学期学生，学号不存在时会自动创建 student 记录</li>
-          <li>学号已存在：标记助教 + 创建账号；已是助教则跳过</li>
-          <li>学号不存在：自动创建 student 记录 + 创建账号</li>
-          <li>"所属班级"字段为助教所属班级（非负责班级），可留空</li>
+          <li>列顺序：学号 / 姓名 / 公司名称 / 周次 / 开始节次 / 结束节次 / 班内编号 / 原始专业</li>
+          <li>公司需已在「班级管理」创建；班级按「公司+周次+节次」自动匹配，不存在自动创建</li>
+          <li>学号已存在：标记为助教并开通账号；已是助教则跳过</li>
+          <li>学号不存在：自动创建学生记录 + 助教账号</li>
           <li>账号 username=学号，初始密码 cdjcc123456，首次登录强制改密</li>
-          <li>负责班级请在"助教分配"页面单独分配</li>
+          <li>助教负责的多个班级请在「助教管理」页面分配</li>
           <li>模板第 1 行为表头，请勿修改</li>
         </ul>
       </el-alert>
@@ -98,7 +103,7 @@ function reasonType(reason: string): 'error' | 'info' {
           :auto-upload="false"
           :show-file-list="false"
           accept=".xlsx,.xls"
-          :before-upload="handleFileSelect"
+          :on-change="handleChange"
         >
           <el-button type="primary" :loading="loading">
             <el-icon><Upload /></el-icon>

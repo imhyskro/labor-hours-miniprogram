@@ -108,10 +108,13 @@ CREATE TABLE student (
     created_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     deleted              TINYINT      NOT NULL DEFAULT 0 COMMENT '逻辑删除: 0=未删除, 1=已删除',
+    active_student_no_in_class INT GENERATED ALWAYS AS (
+        CASE WHEN deleted = 0 THEN student_no_in_class ELSE NULL END
+    ) STORED COMMENT '仅用于约束未删除学生的班内编号唯一',
     PRIMARY KEY (id),
     UNIQUE KEY uk_student_student_id (student_id),
+    UNIQUE KEY uk_student_active_class_no (class_id, active_student_no_in_class),
     KEY idx_student_class_id (class_id),
-    KEY idx_student_no_in_class (class_id, student_no_in_class),
     KEY idx_student_is_assistant (is_assistant)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='学生表';
 

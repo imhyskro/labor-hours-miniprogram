@@ -82,6 +82,8 @@ public class StudentServiceImpl implements StudentService {
         Student entity = new Student();
         BeanUtils.copyProperties(dto, entity);
         entity.setStatus(1);
+        // 校验班内编号唯一（同班同编号，含助教记录，防止助教恢复后编号冲突）
+        checkNoInClassUnique(entity.getClassId(), entity.getStudentNoInClass(), null);
         studentMapper.insert(entity);
     }
 
@@ -113,6 +115,8 @@ public class StudentServiceImpl implements StudentService {
         checkScope(dto.getClassId(), scopeClassIds);
 
         BeanUtils.copyProperties(dto, existing);
+        // 校验班内编号唯一（同班同编号，含助教记录，排除自身，防止助教恢复后编号冲突）
+        checkNoInClassUnique(existing.getClassId(), existing.getStudentNoInClass(), existing.getId());
         studentMapper.updateById(existing);
     }
 
@@ -152,6 +156,39 @@ public class StudentServiceImpl implements StudentService {
             }
         }
         return vo;
+    }
+
+    /**
+     * 校验班内编号唯一性
+     *
+     * <p>同一班级内，班内编号（student_no_in_class）必须唯一，且校验范围包含助教记录
+     * （is_assistant=1 的学生仍占用其班级内的编号位）。这样可防止以下场景：</p>
+     * <ol>
+     *   <li>助教 A 原为班1编号5（取消助教后 classId/no 仍保留）</li>
+     *   <li>助教期间给班1新增/编辑学生 B 时误用编号5</li>
+     *   <li>取消 A 助教身份后，班1出现两个编号5</li>
+     * </ol>
+     *
+     * <p>编号或班级 ID 为 null 时不校验（允许助教不归属本学期班级、或不设编号）。</p>
+     *
+     * @param classId         目标班级 ID
+     * @param studentNoInClass 班内编号
+     * @param excludeId       排除的学生 ID（更新时传自身 ID，新增时传 null）
+     */
+    private void checkNoInClassUnique(Long classId, Integer studentNoInClass, Long excludeId) {
+        if (studentNoInClass == null || classId == null) {
+            return;
+        }
+        LambdaQueryWrapper<Student> wrapper = new LambdaQueryWrapper<Student>()
+                .eq(Student::getClassId, classId)
+                .eq(Student::getStudentNoInClass, studentNoInClass);
+        if (excludeId != null) {
+            wrapper.ne(Student::getId, excludeId);
+        }
+        Long count = studentMapper.selectCount(wrapper);
+        if (count != null && count > 0) {
+            throw new BusinessException("该班级内编号 " + studentNoInClass + " 已被占用（含助教记录），请使用其他编号");
+        }
     }
 
     /**

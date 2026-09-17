@@ -102,8 +102,10 @@ Content-Type: application/json
 | 班级 | DELETE | `/api/classes/{id}` | 超级管理员 | 删除班级 |
 | 总表 | GET | `/api/master-list` | 管理员、教师 | 学生与助教总表 |
 | 学生 | GET | `/api/students/page` | 管理员、教师 | 学生分页 |
+| 学生 | GET | `/api/students/export` | 管理员、教师 | 按筛选条件导出学生 Excel |
 | 学生 | GET | `/api/students/{id}` | 管理员、教师 | 学生基础详情 |
 | 学生 | DELETE | `/api/students/{id}` | 管理员、教师 | 删除学生 |
+| 助教 | GET | `/api/assistants/export` | 管理员、教师 | 按关键词导出助教 Excel |
 | 用户 | GET | `/api/admin/users/page` | 超级管理员 | 用户分页 |
 | 用户 | GET | `/api/admin/users/{userId}` | 超级管理员 | 用户详情 |
 | 用户 | POST | `/api/admin/users` | 超级管理员 | 创建教师账号 |
@@ -115,15 +117,19 @@ Content-Type: application/json
 | 导入 | GET | `/api/import/template/assistants` | 超级管理员 | 下载助教模板 |
 | 导入 | POST | `/api/import/students` | 超级管理员 | 导入学生 |
 | 导入 | POST | `/api/import/assistants` | 超级管理员 | 导入助教 |
+| 考勤 | GET | `/api/attendance/classes` | 管理员、教师、助教 | 查询当前用户可访问的考勤班级 |
 | 考勤 | GET | `/api/attendance/sessions` | 管理员、教师、助教 | 查询班级课次 |
 | 考勤 | POST | `/api/attendance/sessions` | 管理员、教师 | 新建课次 |
 | 考勤 | PUT | `/api/attendance/sessions/{sessionId}` | 管理员、教师 | 修改或封存课次 |
 | 考勤 | GET | `/api/attendance/sessions/{sessionId}/records` | 管理员、教师、助教 | 查询全班考勤与分数 |
+| 考勤 | GET | `/api/attendance/sessions/{sessionId}/export` | 管理员、教师、助教 | 导出课次考勤 Excel |
 | 考勤 | PUT | `/api/attendance/sessions/{sessionId}/records/{studentId}` | 管理员、教师、助教 | 登记考勤与单次分数 |
 | 考勤 | DELETE | `/api/attendance/sessions/{sessionId}/records/{studentId}` | 管理员、教师、助教 | 删除考勤记录 |
 | 换证成绩 | GET | `/api/certificate-scores` | 管理员、教师 | 查询班级换证成绩 |
+| 换证成绩 | GET | `/api/certificate-scores/export` | 管理员、教师 | 导出班级换证成绩 Excel |
 | 换证成绩 | PUT | `/api/certificate-scores/{studentId}` | 管理员、教师 | 登记换证成绩 |
 | 换证成绩 | DELETE | `/api/certificate-scores/{studentId}` | 管理员、教师 | 删除换证成绩 |
+| 操作日志 | GET | `/api/operation-logs` | 超级管理员 | 分页筛选操作日志 |
 
 教师调用班级、学生、总表查询时，后端会自动限制为该教师负责的班级；前端不需要传教师 ID。
 
@@ -461,7 +467,15 @@ GET /api/students/page?page=1&size=10&keyword=张&classId=1
 
 `records` 字段：`id`、`studentId`、`name`、`classId`、`className`、`gender`、`status`、`createdAt`。
 
-### 7.2 学生基础详情
+### 7.2 导出学生 Excel
+
+```http
+GET /api/students/export?keyword=张&classId=1
+```
+
+筛选参数与学生分页一致，返回 `.xlsx` 文件；教师只能导出自己负责班级内的数据。
+
+### 7.3 学生基础详情
 
 ```http
 GET /api/students/{id}
@@ -469,7 +483,7 @@ GET /api/students/{id}
 
 返回字段与学生分页记录一致。需要完整编号、原始专业或助教信息时，应使用总表接口。
 
-### 7.3 删除学生
+### 7.4 删除学生
 
 ```http
 DELETE /api/students/{id}
@@ -659,7 +673,15 @@ Content-Type: multipart/form-data
 
 考勤查询允许 `SUPER_ADMIN`、`TEACHER`、`ASSISTANT`。教师只能操作自己负责的班级，助教只能操作 `assistant_class` 中分配给自己的班级。助教不能新建或修改课次，也不能给自己登记考勤或打分。
 
-### 10.1 查询班级课次
+### 10.1 查询可访问的考勤班级
+
+```http
+GET /api/attendance/classes
+```
+
+返回当前用户有权访问的班级列表：超级管理员返回全部班级，教师返回其负责班级，助教返回分配给该助教的班级。前端可直接用于考勤页面的班级下拉框。
+
+### 10.2 查询班级课次
 
 ```http
 GET /api/attendance/sessions?classId=1
@@ -683,7 +705,7 @@ GET /api/attendance/sessions?classId=1
 
 `status`：1 可编辑、0 已封存；`isLastSession`：1 最后一次课、0 不是。
 
-### 10.2 新建课次
+### 10.3 新建课次
 
 ```http
 POST /api/attendance/sessions
@@ -700,7 +722,7 @@ POST /api/attendance/sessions
 
 同一班级的 `weekNo` 不能重复。成功时 `data.sessionId` 为新课次 ID。
 
-### 10.3 修改或封存课次
+### 10.4 修改或封存课次
 
 ```http
 PUT /api/attendance/sessions/{sessionId}
@@ -717,7 +739,7 @@ PUT /api/attendance/sessions/{sessionId}
 
 将 `status` 改为 0 后，课次及其考勤记录不能再直接修改。
 
-### 10.4 查询全班考勤与单次分数
+### 10.5 查询全班考勤与单次分数
 
 ```http
 GET /api/attendance/sessions/{sessionId}/records
@@ -741,7 +763,15 @@ GET /api/attendance/sessions/{sessionId}/records
 ]
 ```
 
-### 10.5 登记或覆盖单个学生考勤
+### 10.6 导出课次考勤
+
+```http
+GET /api/attendance/sessions/{sessionId}/export
+```
+
+返回 `.xlsx` 文件，内容包括班内编号、学号、姓名、考勤状态、单次成绩和备注；导出范围与考勤查询权限一致。
+
+### 10.7 登记或覆盖单个学生考勤
 
 ```http
 PUT /api/attendance/sessions/{sessionId}/records/{studentId}
@@ -757,7 +787,7 @@ PUT /api/attendance/sessions/{sessionId}/records/{studentId}
 
 `attendanceType` 取值：`NORMAL` 正常、`J` 事假、`K` 旷课；`score` 范围为 0～10。同一课次再次提交同一学生会覆盖原记录。
 
-### 10.6 删除单个学生考勤记录
+### 10.8 删除单个学生考勤记录
 
 ```http
 DELETE /api/attendance/sessions/{sessionId}/records/{studentId}
@@ -796,7 +826,15 @@ GET /api/certificate-scores?classId=1&academicYear=2026-2027&semester=1
 ]
 ```
 
-### 11.2 登记或覆盖单个学生换证成绩
+### 11.2 导出班级换证成绩
+
+```http
+GET /api/certificate-scores/export?classId=1&academicYear=2026-2027&semester=1
+```
+
+返回 `.xlsx` 文件，包含班内编号、学号、姓名、学年、学期、最终成绩和备注。
+
+### 11.3 登记或覆盖单个学生换证成绩
 
 ```http
 PUT /api/certificate-scores/{studentId}
@@ -814,7 +852,7 @@ PUT /api/certificate-scores/{studentId}
 
 `semester` 只能是 1 或 2，`finalScore` 范围为 0～100。同一学生、学年、学期再次提交会覆盖原成绩。
 
-### 11.3 删除单个学生换证成绩
+### 11.4 删除单个学生换证成绩
 
 ```http
 DELETE /api/certificate-scores/{studentId}?classId=1&academicYear=2026-2027&semester=1
@@ -822,7 +860,19 @@ DELETE /api/certificate-scores/{studentId}?classId=1&academicYear=2026-2027&seme
 
 ---
 
-## 12. 前端接入关键规则
+## 12. 操作日志接口
+
+本接口仅 `SUPER_ADMIN` 可用。考勤课次、考勤记录、换证成绩的新增/修改/删除，以及学生/助教导入和各类导出会自动写入 `operation_log`。
+
+```http
+GET /api/operation-logs?page=1&size=20&moduleName=ATTENDANCE&operationType=UPDATE
+```
+
+可选参数：`moduleName`、`operationType`、`operatorUserId`、`keyword`、`startTime`、`endTime`。时间使用 ISO 格式，例如 `2026-09-17T08:00:00`。`operationType` 当前使用 `CREATE`、`UPDATE`、`DELETE`、`IMPORT`、`EXPORT`。
+
+---
+
+## 13. 前端接入关键规则
 
 1. 登录成功后保存 Token，后续请求统一加 `Authorization: Bearer <token>`。
 2. 同时判断 HTTP 状态与响应体 `code`。
@@ -836,7 +886,7 @@ DELETE /api/certificate-scores/{studentId}?classId=1&academicYear=2026-2027&seme
 
 ---
 
-## 13. 暂缓接入的接口
+## 14. 暂缓接入的接口
 
 以下接口虽然已有路由，但当前存在已知问题，不应作为稳定接口交给前端：
 

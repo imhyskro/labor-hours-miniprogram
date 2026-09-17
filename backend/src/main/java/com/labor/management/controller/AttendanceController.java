@@ -5,10 +5,17 @@ import com.labor.management.dto.AttendanceRecordSaveDTO;
 import com.labor.management.dto.AttendanceSessionCreateDTO;
 import com.labor.management.dto.AttendanceSessionUpdateDTO;
 import com.labor.management.service.AttendanceService;
+import com.labor.management.service.ClassAccessService;
+import com.labor.management.service.ClassesService;
+import com.labor.management.service.ExcelExportService;
+import com.labor.management.service.OperationLogService;
+import com.labor.management.util.ExcelResponseUtil;
 import com.labor.management.vo.AttendanceRecordVO;
 import com.labor.management.vo.AttendanceSessionVO;
+import com.labor.management.vo.ClassVO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +30,16 @@ import java.util.Map;
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
+    private final ClassesService classesService;
+    private final ClassAccessService classAccessService;
+    private final ExcelExportService excelExportService;
+    private final OperationLogService operationLogService;
+
+    /** 查询当前用户可访问的考勤班级。 */
+    @GetMapping("/classes")
+    public CommonResult<List<ClassVO>> listClasses() {
+        return CommonResult.success(classesService.listAll(classAccessService.getAttendanceClassIds()));
+    }
 
     /** 查询班级的全部劳动课课次。 */
     @GetMapping("/sessions")
@@ -51,6 +68,17 @@ public class AttendanceController {
     @GetMapping("/sessions/{sessionId}/records")
     public CommonResult<List<AttendanceRecordVO>> listRecords(@PathVariable Long sessionId) {
         return CommonResult.success(attendanceService.listRecords(sessionId));
+    }
+
+    /** 导出某课次的全班考勤与单次成绩。 */
+    @GetMapping("/sessions/{sessionId}/export")
+    public ResponseEntity<byte[]> exportRecords(@PathVariable Long sessionId) {
+        List<AttendanceRecordVO> rows = attendanceService.listRecords(sessionId);
+        byte[] bytes = excelExportService.exportAttendance(rows);
+        operationLogService.record("ATTENDANCE", "EXPORT", "ATTENDANCE_SESSION", sessionId,
+                "导出考勤数据，共 " + rows.size() + " 条", null,
+                Map.of("sessionId", sessionId, "count", rows.size()));
+        return ExcelResponseUtil.download(bytes, "考勤数据-课次" + sessionId + ".xlsx");
     }
 
     /** 新增或覆盖单个学生的考勤与本次分数。 */

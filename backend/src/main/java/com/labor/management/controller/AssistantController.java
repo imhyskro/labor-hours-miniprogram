@@ -3,9 +3,13 @@ package com.labor.management.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.labor.management.common.CommonResult;
 import com.labor.management.service.AssistantAssignmentService;
+import com.labor.management.service.ExcelExportService;
+import com.labor.management.service.OperationLogService;
+import com.labor.management.util.ExcelResponseUtil;
 import com.labor.management.vo.AssistantVO;
 import com.labor.management.vo.MasterListViewVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +32,8 @@ import java.util.Map;
 public class AssistantController {
 
     private final AssistantAssignmentService assistantAssignmentService;
+    private final ExcelExportService excelExportService;
+    private final OperationLogService operationLogService;
 
     /** 助教分页列表 */
     @GetMapping("/page")
@@ -36,6 +42,18 @@ public class AssistantController {
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) String keyword) {
         return CommonResult.success(assistantAssignmentService.pageAssistants(page, size, keyword));
+    }
+
+    /** 按关键词筛选并导出全部助教。 */
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> export(@RequestParam(required = false) String keyword) {
+        List<AssistantVO> rows = assistantAssignmentService
+                .pageAssistants(1, Integer.MAX_VALUE, keyword).getRecords();
+        byte[] bytes = excelExportService.exportAssistants(rows);
+        operationLogService.record("ASSISTANT", "EXPORT", "ASSISTANT", null,
+                "导出助教数据，共 " + rows.size() + " 条", null,
+                Map.of("count", rows.size()));
+        return ExcelResponseUtil.download(bytes, "助教数据.xlsx");
     }
 
     /** 查询助教当前负责的班级ID列表 */
@@ -68,8 +86,10 @@ public class AssistantController {
 
     /** 取消助教身份，恢复为普通学生（保留为兼容旧接口） */
     @PutMapping("/{studentId}/revoke")
-    public CommonResult<Void> revoke(@PathVariable Long studentId) {
-        assistantAssignmentService.revokeAssistant(studentId);
+    public CommonResult<Void> revoke(
+            @PathVariable Long studentId,
+            @RequestParam(defaultValue = "false") boolean notEnrolledThisTerm) {
+        assistantAssignmentService.revokeAssistant(studentId, notEnrolledThisTerm);
         return CommonResult.success();
     }
 

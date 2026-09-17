@@ -23,7 +23,7 @@ public class StudentUpdateDTO implements Serializable {
     @NotBlank(message = "姓名不能为空")
     private String name;
 
-    @NotNull(message = "班级ID不能为空")
+    /** 所属班级ID；本学期未选课时允许为空 */
     private Long classId;
 
     /** 班级内编号 N（可选） */

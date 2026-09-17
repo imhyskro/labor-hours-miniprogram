@@ -6,10 +6,15 @@ import com.labor.management.dto.StudentCreateDTO;
 import com.labor.management.dto.StudentQueryDTO;
 import com.labor.management.dto.StudentUpdateDTO;
 import com.labor.management.service.DataScopeService;
+import com.labor.management.service.ExcelExportService;
+import com.labor.management.service.MasterListService;
+import com.labor.management.service.OperationLogService;
 import com.labor.management.service.StudentService;
+import com.labor.management.util.ExcelResponseUtil;
 import com.labor.management.vo.StudentVO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,11 +32,27 @@ public class StudentController {
 
     private final StudentService studentService;
     private final DataScopeService dataScopeService;
+    private final MasterListService masterListService;
+    private final ExcelExportService excelExportService;
+    private final OperationLogService operationLogService;
 
     /** 分页查询学生列表（老师仅返回负责班级范围内的学生） */
     @GetMapping("/page")
     public CommonResult<IPage<StudentVO>> pageQuery(StudentQueryDTO queryDTO) {
         return CommonResult.success(studentService.pageQuery(queryDTO, dataScopeService.getCurrentUserScopeClassIds()));
+    }
+
+    /** 按当前筛选条件导出普通学生。 */
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> export(StudentQueryDTO queryDTO) {
+        var rows = masterListService.getMasterList(
+                1, Integer.MAX_VALUE, queryDTO.getKeyword(), null, queryDTO.getClassId(), "STUDENT",
+                dataScopeService.getCurrentUserScopeClassIds()).getRecords();
+        byte[] bytes = excelExportService.exportStudents(rows);
+        operationLogService.record("STUDENT", "EXPORT", "STUDENT", null,
+                "导出学生数据，共 " + rows.size() + " 条", null,
+                java.util.Map.of("count", rows.size()));
+        return ExcelResponseUtil.download(bytes, "学生数据.xlsx");
     }
 
     /** 查询学生详情（老师仅可查自己负责班级内的学生） */

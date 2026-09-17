@@ -17,6 +17,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /** 考勤与成绩模块班级权限校验实现。 */
 @Service
 @RequiredArgsConstructor
@@ -77,6 +79,27 @@ public class ClassAccessServiceImpl implements ClassAccessService {
         Long userId = requireCurrentUserId();
         SysUser user = sysUserMapper.selectById(userId);
         return user == null ? null : user.getStudentId();
+    }
+
+    @Override
+    public List<Long> getAttendanceClassIds() {
+        if (hasAuthority("SUPER_ADMIN")) {
+            return null;
+        }
+        Long userId = requireCurrentUserId();
+        if (hasAuthority("TEACHER")) {
+            return teacherClassMapper.selectList(
+                            new LambdaQueryWrapper<TeacherClass>().eq(TeacherClass::getUserId, userId))
+                    .stream().map(TeacherClass::getClassId).distinct().toList();
+        }
+        Long assistantStudentId = getCurrentAssistantStudentId();
+        if (assistantStudentId == null) {
+            return List.of();
+        }
+        return assistantClassMapper.selectList(
+                        new LambdaQueryWrapper<AssistantClass>()
+                                .eq(AssistantClass::getAssistantStudentId, assistantStudentId))
+                .stream().map(AssistantClass::getClassId).distinct().toList();
     }
 
     private Long requireCurrentUserId() {

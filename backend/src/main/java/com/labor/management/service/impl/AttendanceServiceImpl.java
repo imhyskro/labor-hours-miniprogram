@@ -16,6 +16,7 @@ import com.labor.management.mapper.ClassesMapper;
 import com.labor.management.mapper.StudentMapper;
 import com.labor.management.service.AttendanceService;
 import com.labor.management.service.ClassAccessService;
+import com.labor.management.service.OperationLogService;
 import com.labor.management.util.SecurityUtil;
 import com.labor.management.vo.AttendanceRecordVO;
 import com.labor.management.vo.AttendanceSessionVO;
@@ -39,6 +40,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final ClassesMapper classesMapper;
     private final StudentMapper studentMapper;
     private final ClassAccessService classAccessService;
+    private final OperationLogService operationLogService;
 
     @Override
     public List<AttendanceSessionVO> listSessions(Long classId) {
@@ -68,6 +70,8 @@ public class AttendanceServiceImpl implements AttendanceService {
         entity.setCreatedBy(SecurityUtil.getCurrentUserId());
         entity.setUpdatedBy(SecurityUtil.getCurrentUserId());
         sessionMapper.insert(entity);
+        operationLogService.record("ATTENDANCE", "CREATE", "ATTENDANCE_SESSION", entity.getId(),
+                "新建劳动课课次", null, entity);
         return entity.getId();
     }
 
@@ -75,6 +79,8 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Transactional(rollbackFor = Exception.class)
     public void updateSession(Long sessionId, AttendanceSessionUpdateDTO dto) {
         AttendanceSession entity = requireSession(sessionId);
+        AttendanceSession before = new AttendanceSession();
+        BeanUtils.copyProperties(entity, before);
         classAccessService.checkTeacherAccess(entity.getClassId());
         if (entity.getStatus() != null && entity.getStatus() == 0) {
             throw new BusinessException(ResultCode.DATA_SEALED);
@@ -93,6 +99,8 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
         entity.setUpdatedBy(SecurityUtil.getCurrentUserId());
         sessionMapper.updateById(entity);
+        operationLogService.record("ATTENDANCE", "UPDATE", "ATTENDANCE_SESSION", entity.getId(),
+                "修改劳动课课次", before, entity);
     }
 
     @Override
@@ -134,10 +142,15 @@ public class AttendanceServiceImpl implements AttendanceService {
                 new LambdaQueryWrapper<AttendanceRecord>()
                         .eq(AttendanceRecord::getSessionId, sessionId)
                         .eq(AttendanceRecord::getStudentId, studentId));
-        if (entity == null) {
+        boolean creating = entity == null;
+        AttendanceRecord before = null;
+        if (creating) {
             entity = new AttendanceRecord();
             entity.setSessionId(sessionId);
             entity.setStudentId(studentId);
+        } else {
+            before = new AttendanceRecord();
+            BeanUtils.copyProperties(entity, before);
         }
         entity.setAttendanceType(type);
         entity.setScore(dto.getScore());
@@ -148,6 +161,9 @@ public class AttendanceServiceImpl implements AttendanceService {
         } else {
             recordMapper.updateById(entity);
         }
+        operationLogService.record("ATTENDANCE", creating ? "CREATE" : "UPDATE",
+                "ATTENDANCE_RECORD", entity.getId(),
+                (creating ? "新增" : "修改") + "学生考勤与单次成绩", before, entity);
     }
 
     @Override
@@ -157,7 +173,15 @@ public class AttendanceServiceImpl implements AttendanceService {
         classAccessService.checkAttendanceAccess(session.getClassId());
         Student student = requireStudentInClass(studentId, session.getClassId());
         preventAssistantSelfScoring(student.getId());
+        AttendanceRecord before = recordMapper.selectOne(
+                new LambdaQueryWrapper<AttendanceRecord>()
+                        .eq(AttendanceRecord::getSessionId, sessionId)
+                        .eq(AttendanceRecord::getStudentId, studentId));
         recordMapper.physicalDelete(sessionId, studentId);
+        if (before != null) {
+            operationLogService.record("ATTENDANCE", "DELETE", "ATTENDANCE_RECORD", before.getId(),
+                    "删除学生考勤记录", before, null);
+        }
     }
 
     private Classes requireClass(Long classId) {

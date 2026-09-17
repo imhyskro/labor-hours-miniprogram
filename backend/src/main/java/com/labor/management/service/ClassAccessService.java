@@ -1,5 +1,7 @@
 package com.labor.management.service;
 
+import java.util.List;
+
 /**
  * 考勤与成绩模块的数据范围服务。
  *
@@ -16,4 +18,7 @@ public interface ClassAccessService {
 
     /** 当前用户关联的助教学生 ID；非助教返回 null。 */
     Long getCurrentAssistantStudentId();
+
+    /** 当前用户可访问的考勤班级；null 表示超级管理员可访问全部班级。 */
+    List<Long> getAttendanceClassIds();
 }

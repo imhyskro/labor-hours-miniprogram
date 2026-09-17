@@ -34,8 +34,10 @@ public interface AssistantAssignmentService {
 
     /**
      * 取消助教身份，恢复为普通学生（清理负责班级关联与登录账号）
+     *
+     * @param notEnrolledThisTerm true 时同时清空当前所属班级和班内编号
      */
-    void revokeAssistant(Long assistantStudentId);
+    void revokeAssistant(Long assistantStudentId, boolean notEnrolledThisTerm);
 
     /**
      * 设置或取消助教身份

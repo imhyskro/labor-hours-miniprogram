@@ -59,8 +59,8 @@ public class ImportController {
     public ResponseEntity<byte[]> downloadStudentTemplate() throws IOException {
         byte[] bytes = buildTemplate(
                 "学生导入模板",
-                new String[]{"学号", "姓名", "公司名称", "周次", "开始节次", "结束节次", "班内编号", "原始专业", "性别(男/女)"},
-                new String[]{"2024001001", "张三", "茶园", "1", "1", "2", "1", "软件工程", "男"}
+                new String[]{"公司", "节次", "学号", "姓名", "性别", "行政班"},
+                new String[]{"茶园", "1-1-2-1", "263000087", "张伟", "男", "会计2601班"}
         );
         return buildTemplateResponse(bytes, "学生导入模板.xlsx");
     }
@@ -70,8 +70,8 @@ public class ImportController {
     public ResponseEntity<byte[]> downloadAssistantTemplate() throws IOException {
         byte[] bytes = buildTemplate(
                 "助教导入模板",
-                new String[]{"学号", "姓名", "公司名称", "周次", "开始节次", "结束节次", "班内编号", "原始专业"},
-                new String[]{"2024002001", "王助教", "果园", "2", "3", "4", "1", "计算机科学与技术"}
+                new String[]{"公司", "节次", "学号", "姓名", "性别", "行政班"},
+                new String[]{"果园", "2-3-4-1", "263000142", "王芳", "女", "软件工程2605班"}
         );
         return buildTemplateResponse(bytes, "助教导入模板.xlsx");
     }

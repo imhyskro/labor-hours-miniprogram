@@ -11,9 +11,11 @@ import com.labor.management.mapper.ClassesMapper;
 import com.labor.management.mapper.StudentMapper;
 import com.labor.management.service.CertificateScoreService;
 import com.labor.management.service.ClassAccessService;
+import com.labor.management.service.OperationLogService;
 import com.labor.management.util.SecurityUtil;
 import com.labor.management.vo.CertificateScoreVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class CertificateScoreServiceImpl implements CertificateScoreService {
     private final StudentMapper studentMapper;
     private final ClassesMapper classesMapper;
     private final ClassAccessService classAccessService;
+    private final OperationLogService operationLogService;
 
     @Override
     public List<CertificateScoreVO> listScores(Long classId, String academicYear, Integer semester) {
@@ -72,11 +75,16 @@ public class CertificateScoreServiceImpl implements CertificateScoreService {
                         .eq(CertificateScore::getStudentId, student.getId())
                         .eq(CertificateScore::getAcademicYear, academicYear)
                         .eq(CertificateScore::getSemester, dto.getSemester()));
-        if (entity == null) {
+        boolean creating = entity == null;
+        CertificateScore before = null;
+        if (creating) {
             entity = new CertificateScore();
             entity.setStudentId(student.getId());
             entity.setAcademicYear(academicYear);
             entity.setSemester(dto.getSemester());
+        } else {
+            before = new CertificateScore();
+            BeanUtils.copyProperties(entity, before);
         }
         entity.setClassId(dto.getClassId());
         entity.setFinalScore(dto.getFinalScore());
@@ -87,6 +95,9 @@ public class CertificateScoreServiceImpl implements CertificateScoreService {
         } else {
             scoreMapper.updateById(entity);
         }
+        operationLogService.record("CERTIFICATE_SCORE", creating ? "CREATE" : "UPDATE",
+                "CERTIFICATE_SCORE", entity.getId(),
+                (creating ? "录入" : "修改") + "换证考试成绩", before, entity);
     }
 
     @Override
@@ -105,6 +116,8 @@ public class CertificateScoreServiceImpl implements CertificateScoreService {
                         .eq(CertificateScore::getSemester, semester));
         if (score != null) {
             scoreMapper.physicalDelete(studentId, academicYear.trim(), semester);
+            operationLogService.record("CERTIFICATE_SCORE", "DELETE", "CERTIFICATE_SCORE", score.getId(),
+                    "删除换证考试成绩", score, null);
         }
     }
 

@@ -18,6 +18,7 @@ import com.labor.management.mapper.SysUserMapper;
 import com.labor.management.mapper.UserRoleMapper;
 import com.labor.management.service.ClassesService;
 import com.labor.management.service.ExcelImportService;
+import com.labor.management.service.OperationLogService;
 import com.labor.management.vo.ImportErrorVO;
 import com.labor.management.vo.ImportResultVO;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,8 +47,9 @@ import java.util.Map;
 /**
  * Excel 导入 Service 实现
  *
- * <p>学生/助教通过 Excel 批量导入，列含：公司 / 周次 / 开始节次 / 结束节次 / 班内编号 / 原始专业。
- * 公司必须预先存在（班级管理中维护）；班级（W-S-E）在导入时按 公司+周次+节次 自动查找或创建。</p>
+ * <p>学生/助教统一使用六列表格：公司 / 节次 / 学号 / 姓名 / 性别 / 行政班。
+ * 节次使用 W-S-E-N（周次-开始节次-结束节次-班内编号）；公司必须预先存在，
+ * 班级（W-S-E）在导入时按 公司+周次+节次 自动查找或创建。</p>
  */
 @Slf4j
 @Service
@@ -56,6 +59,11 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     /** 助教账号初始密码 */
     private static final String ASSISTANT_DEFAULT_PASSWORD = "cdjcc123456";
 
+    /** 学生和助教使用同一套导入表头 */
+    private static final String[] IMPORT_HEADERS = {
+            "公司", "节次", "学号", "姓名", "性别", "行政班"
+    };
+
     private final StudentMapper studentMapper;
     private final CompanyMapper companyMapper;
     private final ClassesService classesService;
@@ -63,6 +71,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     private final SysRoleMapper sysRoleMapper;
     private final UserRoleMapper userRoleMapper;
     private final PasswordEncoder passwordEncoder;
+    private final OperationLogService operationLogService;
 
     // ==================== 学生导入 ====================
 
@@ -84,7 +93,8 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             String sid = trim(row.getStudentId());
             String name = trim(row.getName());
             String companyName = trim(row.getCompanyName());
-            String major = trim(row.getOriginalMajor());
+            String sessionCode = trim(row.getSessionCode());
+            String administrativeClass = trim(row.getAdministrativeClass());
             String gender = trim(row.getGender());
 
             if (!StringUtils.hasText(sid)) {
@@ -95,6 +105,27 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 errors.add(new ImportErrorVO(rowNum, sid, "姓名不能为空"));
                 continue;
             }
+            if (!StringUtils.hasText(companyName)) {
+                errors.add(new ImportErrorVO(rowNum, sid, "公司不能为空"));
+                continue;
+            }
+            if (!StringUtils.hasText(administrativeClass)) {
+                errors.add(new ImportErrorVO(rowNum, sid, "行政班不能为空"));
+                continue;
+            }
+
+            Integer genderCode = parseRequiredGender(gender);
+            if (genderCode == null) {
+                errors.add(new ImportErrorVO(rowNum, sid, "性别必须填写男或女"));
+                continue;
+            }
+
+            SessionParts session = parseSessionCode(sessionCode);
+            if (session == null) {
+                errors.add(new ImportErrorVO(rowNum, sid,
+                        "节次格式必须为 周次-开始节次-结束节次-班内编号，例如 1-1-2-1"));
+                continue;
+            }
 
             // 公司解析
             Company company = resolveCompany(companyName, companyCache);
@@ -103,21 +134,8 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 continue;
             }
 
-            // 周次/节次/班内编号解析
-            Integer week = parseInt(row.getWeek());
-            Integer start = parseInt(row.getStartSession());
-            Integer end = parseInt(row.getEndSession());
-            Integer noInClass = parseInt(row.getStudentNoInClass());
-            if (week == null || start == null || end == null) {
-                errors.add(new ImportErrorVO(rowNum, sid, "周次/开始节次/结束节次必须为正整数"));
-                continue;
-            }
-            if (start > end) {
+            if (session.startSession > session.endSession) {
                 errors.add(new ImportErrorVO(rowNum, sid, "开始节次不能大于结束节次"));
-                continue;
-            }
-            if (noInClass == null) {
-                errors.add(new ImportErrorVO(rowNum, sid, "班内编号必须为正整数"));
                 continue;
             }
 
@@ -133,7 +151,8 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             // 班级自动查找或创建
             Classes classes;
             try {
-                classes = classesService.findOrCreateClass(company.getId(), week, start, end);
+                classes = classesService.findOrCreateClass(
+                        company.getId(), session.week, session.startSession, session.endSession);
             } catch (BusinessException e) {
                 errors.add(new ImportErrorVO(rowNum, sid, e.getMessage()));
                 continue;
@@ -143,10 +162,11 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             Long noExists = studentMapper.selectCount(
                     new LambdaQueryWrapper<Student>()
                             .eq(Student::getClassId, classes.getId())
-                            .eq(Student::getStudentNoInClass, noInClass)
+                            .eq(Student::getStudentNoInClass, session.studentNoInClass)
             );
             if (noExists != null && noExists > 0) {
-                errors.add(new ImportErrorVO(rowNum, sid, "该班级中班内编号 " + noInClass + " 已存在"));
+                errors.add(new ImportErrorVO(rowNum, sid,
+                        "该班级中班内编号 " + session.studentNoInClass + " 已存在"));
                 continue;
             }
 
@@ -154,9 +174,9 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             student.setStudentId(sid);
             student.setName(name);
             student.setClassId(classes.getId());
-            student.setStudentNoInClass(noInClass);
-            student.setOriginalMajor(major);
-            student.setGender(parseGender(gender));
+            student.setStudentNoInClass(session.studentNoInClass);
+            student.setOriginalMajor(administrativeClass);
+            student.setGender(genderCode);
             student.setStatus(1);
             student.setIsAssistant(0);
             studentMapper.insert(student);
@@ -166,6 +186,9 @@ public class ExcelImportServiceImpl implements ExcelImportService {
         result.setSuccessCount(success);
         result.setFailCount(errors.size());
         result.setErrors(errors);
+        operationLogService.record("STUDENT", "IMPORT", "STUDENT", null,
+                "导入学生：成功 " + success + " 条，失败 " + errors.size() + " 条",
+                null, result);
         return result;
     }
 
@@ -191,7 +214,9 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             String sid = trim(row.getStudentId());
             String name = trim(row.getName());
             String companyName = trim(row.getCompanyName());
-            String major = trim(row.getOriginalMajor());
+            String sessionCode = trim(row.getSessionCode());
+            String administrativeClass = trim(row.getAdministrativeClass());
+            String gender = trim(row.getGender());
 
             if (!StringUtils.hasText(sid)) {
                 errors.add(new ImportErrorVO(rowNum, sid, "学号不能为空"));
@@ -201,26 +226,29 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 errors.add(new ImportErrorVO(rowNum, sid, "姓名不能为空"));
                 continue;
             }
+            if (!StringUtils.hasText(companyName)) {
+                errors.add(new ImportErrorVO(rowNum, sid, "公司不能为空"));
+                continue;
+            }
+            if (!StringUtils.hasText(administrativeClass)) {
+                errors.add(new ImportErrorVO(rowNum, sid, "行政班不能为空"));
+                continue;
+            }
 
-            // 公司/周次/节次/班内编号（助教所属班级，用于定位学生所在班）
-            Company company = resolveCompany(companyName, companyCache);
-            Classes classes = null;
-            Integer noInClass = null;
-            if (company != null) {
-                Integer week = parseInt(row.getWeek());
-                Integer start = parseInt(row.getStartSession());
-                Integer end = parseInt(row.getEndSession());
-                noInClass = parseInt(row.getStudentNoInClass());
-                if (week != null && start != null && end != null && start <= end) {
-                    try {
-                        classes = classesService.findOrCreateClass(company.getId(), week, start, end);
-                    } catch (BusinessException e) {
-                        errors.add(new ImportErrorVO(rowNum, sid, e.getMessage()));
-                        continue;
-                    }
-                }
-            } else if (StringUtils.hasText(companyName)) {
-                errors.add(new ImportErrorVO(rowNum, sid, "公司不存在：" + companyName + "（请先在班级管理中创建公司）"));
+            Integer genderCode = parseRequiredGender(gender);
+            if (genderCode == null) {
+                errors.add(new ImportErrorVO(rowNum, sid, "性别必须填写男或女"));
+                continue;
+            }
+
+            SessionParts session = parseSessionCode(sessionCode);
+            if (session == null) {
+                errors.add(new ImportErrorVO(rowNum, sid,
+                        "节次格式必须为 周次-开始节次-结束节次-班内编号，例如 1-1-2-1"));
+                continue;
+            }
+            if (session.startSession > session.endSession) {
+                errors.add(new ImportErrorVO(rowNum, sid, "开始节次不能大于结束节次"));
                 continue;
             }
 
@@ -228,36 +256,56 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                     new LambdaQueryWrapper<Student>().eq(Student::getStudentId, sid)
             );
 
+            // 公司与节次用于定位助教作为学生时所属的班级
+            Company company = resolveCompany(companyName, companyCache);
+            if (company == null) {
+                errors.add(new ImportErrorVO(rowNum, sid, "公司不存在：" + companyName + "（请先在班级管理中创建公司）"));
+                continue;
+            }
+
+            Classes classes;
+            try {
+                classes = classesService.findOrCreateClass(
+                        company.getId(), session.week, session.startSession, session.endSession);
+            } catch (BusinessException e) {
+                errors.add(new ImportErrorVO(rowNum, sid, e.getMessage()));
+                continue;
+            }
+
+            LambdaQueryWrapper<Student> noQuery = new LambdaQueryWrapper<Student>()
+                    .eq(Student::getClassId, classes.getId())
+                    .eq(Student::getStudentNoInClass, session.studentNoInClass);
+            if (student != null) {
+                noQuery.ne(Student::getId, student.getId());
+            }
+            Long noExists = studentMapper.selectCount(noQuery);
+            if (noExists != null && noExists > 0) {
+                errors.add(new ImportErrorVO(rowNum, sid,
+                        "该班级中班内编号 " + session.studentNoInClass + " 已存在"));
+                continue;
+            }
+
             if (student == null) {
                 // 学号不存在 → 新建学生 + 助教账号
                 student = new Student();
                 student.setStudentId(sid);
                 student.setName(name);
-                student.setClassId(classes != null ? classes.getId() : null);
-                student.setStudentNoInClass(noInClass);
-                student.setOriginalMajor(major);
-                student.setGender(0);
+                student.setClassId(classes.getId());
+                student.setStudentNoInClass(session.studentNoInClass);
+                student.setOriginalMajor(administrativeClass);
+                student.setGender(genderCode);
                 student.setStatus(1);
                 student.setIsAssistant(1);
                 studentMapper.insert(student);
                 success++;
                 createAssistantAccount(student, name, passwordHash, assistantRole);
             } else {
-                // 学号已存在 → 已是助教则跳过；否则升为助教 + 建账号
-                if (student.getIsAssistant() != null && student.getIsAssistant() == 1) {
-                    errors.add(new ImportErrorVO(rowNum, sid, "该学号已是助教，跳过"));
-                    continue;
-                }
+                // 学号已存在（包括已经标记为助教）→ 更新资料并确保账号、角色完整
                 student.setName(name);
-                if (classes != null) {
-                    student.setClassId(classes.getId());
-                }
-                if (noInClass != null) {
-                    student.setStudentNoInClass(noInClass);
-                }
-                if (StringUtils.hasText(major)) {
-                    student.setOriginalMajor(major);
-                }
+                student.setClassId(classes.getId());
+                student.setStudentNoInClass(session.studentNoInClass);
+                student.setOriginalMajor(administrativeClass);
+                student.setGender(genderCode);
                 student.setIsAssistant(1);
                 studentMapper.updateById(student);
                 success++;
@@ -268,74 +316,96 @@ public class ExcelImportServiceImpl implements ExcelImportService {
         result.setSuccessCount(success);
         result.setFailCount(errors.size());
         result.setErrors(errors);
+        operationLogService.record("ASSISTANT", "IMPORT", "ASSISTANT", null,
+                "导入助教：成功 " + success + " 条，失败 " + errors.size() + " 条",
+                null, result);
         return result;
     }
 
     /**
-     * 创建助教账号（username=学号 + 分配 ASSISTANT 角色）
+     * 创建、恢复或补全助教账号（username=学号 + 分配 ASSISTANT 角色）。
      */
     private void createAssistantAccount(Student student, String realName,
                                         String passwordHash, SysRole assistantRole) {
-        Long exists = sysUserMapper.selectCount(
-                new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, student.getStudentId())
-        );
-        if (exists != null && exists > 0) {
-            log.warn("助教账号已存在，跳过创建：{}", student.getStudentId());
-            return;
+        String displayName = StringUtils.hasText(realName) ? realName : student.getName();
+        SysUser user = sysUserMapper.selectByUsernameIncludeDeleted(student.getStudentId());
+
+        if (user == null) {
+            // 全新账号：写入 sys_user，用户管理页面即可查询到。
+            user = new SysUser();
+            user.setUsername(student.getStudentId());
+            user.setPasswordHash(passwordHash);
+            user.setRealName(displayName);
+            user.setStatus(1);
+            user.setFirstLogin(1);
+            user.setLastPasswordChangeTime(LocalDateTime.now());
+            user.setStudentId(student.getId());
+            sysUserMapper.insert(user);
+        } else if (user.getDeleted() != null && user.getDeleted() == 1) {
+            // 同名账号是之前取消助教后留下的逻辑删除记录，复活并重新关联学生。
+            sysUserMapper.reviveAndReset(
+                    user.getId(),
+                    passwordHash,
+                    displayName,
+                    student.getId(),
+                    LocalDateTime.now()
+            );
+        } else {
+            // 正常账号只同步资料和学生关联，不重置用户已经修改过的密码。
+            user.setRealName(displayName);
+            user.setStatus(1);
+            user.setStudentId(student.getId());
+            sysUserMapper.updateById(user);
         }
 
-        SysUser user = new SysUser();
-        user.setUsername(student.getStudentId());
-        user.setPasswordHash(passwordHash);
-        user.setRealName(StringUtils.hasText(realName) ? realName : student.getName());
-        user.setStatus(1);
-        user.setFirstLogin(1);
-        user.setStudentId(student.getId());
-        sysUserMapper.insert(user);
+        // user_role 也可能存在逻辑删除记录，需要复活而不是重复插入。
+        UserRole existingRole = userRoleMapper.selectByUserAndRoleIncludeDeleted(
+                user.getId(), assistantRole.getId());
+        if (existingRole == null) {
+            UserRole userRole = new UserRole();
+            userRole.setUserId(user.getId());
+            userRole.setRoleId(assistantRole.getId());
+            userRoleMapper.insert(userRole);
+        } else {
+            userRoleMapper.reviveByUserAndRole(user.getId(), assistantRole.getId());
+        }
 
-        UserRole userRole = new UserRole();
-        userRole.setUserId(user.getId());
-        userRole.setRoleId(assistantRole.getId());
-        userRoleMapper.insert(userRole);
+        log.info("助教导入账号已创建或恢复: studentId={}, userId={}",
+                student.getStudentId(), user.getId());
     }
 
     // ==================== Excel 解析 ====================
 
     /**
      * 解析学生导入 Excel
-     * 列顺序：学号 / 姓名 / 公司名称 / 周次 / 开始节次 / 结束节次 / 班内编号 / 原始专业 / 性别
+     * 列顺序：公司 / 节次 / 学号 / 姓名 / 性别 / 行政班
      */
     private List<StudentImportDTO> parseStudentExcel(MultipartFile file) {
-        return parse(file, 9, (row, rowNum) -> {
+        return parse(file, IMPORT_HEADERS, (row, rowNum) -> {
             StudentImportDTO dto = new StudentImportDTO();
-            dto.setStudentId(getStringCell(row, 0));
-            dto.setName(getStringCell(row, 1));
-            dto.setCompanyName(getStringCell(row, 2));
-            dto.setWeek(getStringCell(row, 3));
-            dto.setStartSession(getStringCell(row, 4));
-            dto.setEndSession(getStringCell(row, 5));
-            dto.setStudentNoInClass(getStringCell(row, 6));
-            dto.setOriginalMajor(getStringCell(row, 7));
-            dto.setGender(getStringCell(row, 8));
+            dto.setCompanyName(getStringCell(row, 0));
+            dto.setSessionCode(getStringCell(row, 1));
+            dto.setStudentId(getStringCell(row, 2));
+            dto.setName(getStringCell(row, 3));
+            dto.setGender(getStringCell(row, 4));
+            dto.setAdministrativeClass(getStringCell(row, 5));
             return dto;
         });
     }
 
     /**
      * 解析助教导入 Excel
-     * 列顺序：学号 / 姓名 / 公司名称 / 周次 / 开始节次 / 结束节次 / 班内编号 / 原始专业
+     * 列顺序：公司 / 节次 / 学号 / 姓名 / 性别 / 行政班
      */
     private List<AssistantImportDTO> parseAssistantExcel(MultipartFile file) {
-        return parse(file, 8, (row, rowNum) -> {
+        return parse(file, IMPORT_HEADERS, (row, rowNum) -> {
             AssistantImportDTO dto = new AssistantImportDTO();
-            dto.setStudentId(getStringCell(row, 0));
-            dto.setName(getStringCell(row, 1));
-            dto.setCompanyName(getStringCell(row, 2));
-            dto.setWeek(getStringCell(row, 3));
-            dto.setStartSession(getStringCell(row, 4));
-            dto.setEndSession(getStringCell(row, 5));
-            dto.setStudentNoInClass(getStringCell(row, 6));
-            dto.setOriginalMajor(getStringCell(row, 7));
+            dto.setCompanyName(getStringCell(row, 0));
+            dto.setSessionCode(getStringCell(row, 1));
+            dto.setStudentId(getStringCell(row, 2));
+            dto.setName(getStringCell(row, 3));
+            dto.setGender(getStringCell(row, 4));
+            dto.setAdministrativeClass(getStringCell(row, 5));
             return dto;
         });
     }
@@ -343,7 +413,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     /**
      * 通用 Excel 解析：跳过表头，按预期列数读取数据行
      */
-    private <T> List<T> parse(MultipartFile file, int expectedCols,
+    private <T> List<T> parse(MultipartFile file, String[] expectedHeaders,
                                RowParser<T> parser) {
         if (file == null || file.isEmpty()) {
             throw new BusinessException("导入文件为空");
@@ -361,6 +431,8 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             if (sheet == null) {
                 throw new BusinessException("Excel 文件无工作表");
             }
+            validateHeaders(sheet, expectedHeaders);
+            int expectedCols = expectedHeaders.length;
             int lastRow = sheet.getLastRowNum();
             for (int i = 1; i <= lastRow; i++) {
                 Row row = sheet.getRow(i);
@@ -385,6 +457,24 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             throw new BusinessException("Excel 解析异常：" + e.getMessage());
         }
         return result;
+    }
+
+    /**
+     * 校验第一行表头，避免旧模板或列错位造成字段误导入。
+     */
+    private void validateHeaders(Sheet sheet, String[] expectedHeaders) {
+        Row header = sheet.getRow(0);
+        if (header == null) {
+            throw new BusinessException("Excel 第1行必须是表头");
+        }
+        for (int i = 0; i < expectedHeaders.length; i++) {
+            String actual = trim(getStringCell(header, i));
+            if (!expectedHeaders[i].equals(actual)) {
+                throw new BusinessException(
+                        "第" + (i + 1) + "列表头应为“" + expectedHeaders[i] + "”，实际为“"
+                                + (actual == null ? "" : actual) + "”");
+            }
+        }
     }
 
     @FunctionalInterface
@@ -451,14 +541,46 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     }
 
     /**
-     * 性别文本转码：男→1, 女→2, 其他→0
+     * 解析节次编码 W-S-E-N（周次-开始节次-结束节次-班内编号）。
      */
-    private Integer parseGender(String text) {
-        if (!StringUtils.hasText(text)) return 0;
-        String t = text.trim();
-        if (t.contains("男")) return 1;
-        if (t.contains("女")) return 2;
-        return 0;
+    private SessionParts parseSessionCode(String text) {
+        if (!StringUtils.hasText(text)) return null;
+        String[] parts = text.trim().split("\\s*-\\s*", -1);
+        if (parts.length != 4) return null;
+        Integer week = parseInt(parts[0]);
+        Integer startSession = parseInt(parts[1]);
+        Integer endSession = parseInt(parts[2]);
+        Integer studentNoInClass = parseInt(parts[3]);
+        if (week == null || startSession == null || endSession == null || studentNoInClass == null) {
+            return null;
+        }
+        return new SessionParts(week, startSession, endSession, studentNoInClass);
+    }
+
+    /**
+     * 性别文本转码：男→1，女→2；其他值返回 null 作为格式错误。
+     */
+    private Integer parseRequiredGender(String text) {
+        if (!StringUtils.hasText(text)) return null;
+        String value = text.trim();
+        if ("男".equals(value)) return 1;
+        if ("女".equals(value)) return 2;
+        return null;
+    }
+
+    private static final class SessionParts {
+        private final Integer week;
+        private final Integer startSession;
+        private final Integer endSession;
+        private final Integer studentNoInClass;
+
+        private SessionParts(Integer week, Integer startSession,
+                             Integer endSession, Integer studentNoInClass) {
+            this.week = week;
+            this.startSession = startSession;
+            this.endSession = endSession;
+            this.studentNoInClass = studentNoInClass;
+        }
     }
 
     /**

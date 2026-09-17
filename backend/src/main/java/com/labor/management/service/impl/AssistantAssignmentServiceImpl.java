@@ -1,6 +1,7 @@
 package com.labor.management.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.labor.management.entity.AssistantClass;
@@ -112,7 +113,7 @@ public class AssistantAssignmentServiceImpl implements AssistantAssignmentServic
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void revokeAssistant(Long assistantStudentId) {
+    public void revokeAssistant(Long assistantStudentId, boolean notEnrolledThisTerm) {
         Student student = studentMapper.selectById(assistantStudentId);
         if (student == null) {
             throw new BusinessException("学生不存在");
@@ -137,7 +138,18 @@ public class AssistantAssignmentServiceImpl implements AssistantAssignmentServic
 
         // 恢复普通学生身份
         student.setIsAssistant(0);
+        if (notEnrolledThisTerm) {
+            student.setClassId(null);
+            student.setStudentNoInClass(null);
+        }
         studentMapper.updateById(student);
+        if (notEnrolledThisTerm) {
+            // updateById 默认不写入 null，显式清空当前班级及班内编号。
+            studentMapper.update(null, new LambdaUpdateWrapper<Student>()
+                    .eq(Student::getId, assistantStudentId)
+                    .set(Student::getClassId, null)
+                    .set(Student::getStudentNoInClass, null));
+        }
     }
 
     @Override
@@ -146,7 +158,7 @@ public class AssistantAssignmentServiceImpl implements AssistantAssignmentServic
         if (isAssistant) {
             promoteToAssistant(studentId);
         } else {
-            revokeAssistant(studentId);
+            revokeAssistant(studentId, false);
         }
     }
 

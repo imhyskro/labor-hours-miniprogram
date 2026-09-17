@@ -1,6 +1,7 @@
 package com.labor.management.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.labor.management.dto.StudentCreateDTO;
@@ -88,6 +89,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void update(StudentUpdateDTO dto, List<Long> scopeClassIds) {
         Student existing = studentMapper.selectById(dto.getId());
         if (existing == null) {
@@ -106,18 +108,39 @@ public class StudentServiceImpl implements StudentService {
             throw new BusinessException("学号已存在");
         }
 
-        // 校验班级存在
-        Classes classes = classesMapper.selectById(dto.getClassId());
-        if (classes == null) {
-            throw new BusinessException("班级不存在");
+        // 班级允许为空，表示本学期未选课；普通教师仍不能把学生移出自己的数据范围。
+        if (dto.getClassId() != null) {
+            Classes classes = classesMapper.selectById(dto.getClassId());
+            if (classes == null) {
+                throw new BusinessException("班级不存在");
+            }
         }
         // 新班级范围校验
         checkScope(dto.getClassId(), scopeClassIds);
 
         BeanUtils.copyProperties(dto, existing);
+        if (existing.getClassId() == null) {
+            existing.setStudentNoInClass(null);
+        }
         // 校验班内编号唯一（同班同编号，含助教记录，排除自身，防止助教恢复后编号冲突）
         checkNoInClassUnique(existing.getClassId(), existing.getStudentNoInClass(), existing.getId());
         studentMapper.updateById(existing);
+        if (existing.getClassId() == null) {
+            // MyBatis-Plus 默认忽略 null 字段，需要显式把“本学期未选课”写入数据库。
+            studentMapper.update(null, new LambdaUpdateWrapper<Student>()
+                    .eq(Student::getId, existing.getId())
+                    .set(Student::getClassId, null)
+                    .set(Student::getStudentNoInClass, null));
+        }
+
+        // 助教账号与学生记录分别存储姓名，修改学生姓名时保持账号显示名同步。
+        List<SysUser> linkedUsers = sysUserMapper.selectList(
+                new LambdaQueryWrapper<SysUser>().eq(SysUser::getStudentId, existing.getId())
+        );
+        for (SysUser user : linkedUsers) {
+            user.setRealName(existing.getName());
+            sysUserMapper.updateById(user);
+        }
     }
 
     @Override

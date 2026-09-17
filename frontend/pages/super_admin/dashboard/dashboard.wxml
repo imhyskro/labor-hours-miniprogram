@@ -1,0 +1,23 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">系统数据总览</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="nav-cards">
+    <view class="big-nav-card glass-card" bindtap="onGoStudentData">
+      <view class="big-nav-icon emoji-big">🎓</view>
+      <view class="big-nav-title">学生数据管理</view>
+      <view class="big-nav-sub">查看 / 导入 / 导出学生学时</view>
+    </view>
+    <view class="big-nav-card glass-card" bindtap="onGoTeacherData">
+      <view class="big-nav-icon emoji-big">👩‍🏫</view>
+      <view class="big-nav-title">教师数据管理</view>
+      <view class="big-nav-sub">查看 / 导入 / 导出教师授课</view>
+    </view>
+  </view>
+</view>

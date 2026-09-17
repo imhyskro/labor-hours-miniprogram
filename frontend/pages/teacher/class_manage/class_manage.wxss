@@ -1,0 +1,26 @@
+/* 复用 student_list 的基础样式 */
+.page-container { position: relative; min-height: 100vh; padding: 0 32rpx; box-sizing: border-box; display: flex; flex-direction: column; }
+.bg-image { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; }
+.bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.15) 100%); z-index: -1; }
+.custom-nav { display: flex; align-items: center; justify-content: space-between; padding: 60rpx 32rpx 20rpx; }
+.nav-back { width: 60rpx; height: 60rpx; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4); border-radius: 50%; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.back-icon { font-size: 44rpx; font-weight: 700; color: #fff; line-height: 1; }
+.nav-title { font-size: 34rpx; font-weight: 600; color: #fff; text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.3); }
+.nav-placeholder { width: 60rpx; }
+.glass-card { background-color: rgba(255,255,255,0.25); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); border-radius: 28rpx; box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06); }
+.filter-card { margin: 20rpx 0 24rpx; padding: 28rpx 32rpx; }
+.filter-label { font-size: 26rpx; color: #2d4a1f; margin-bottom: 16rpx; font-weight: 500; }
+.picker-value { display: flex; align-items: center; justify-content: space-between; height: 72rpx; padding: 0 24rpx; background: rgba(255,255,255,0.7); border-radius: 12rpx; font-size: 28rpx; color: #333; }
+.arrow { color: #999; font-size: 32rpx; }
+.btn-row { margin-top: 20rpx; }
+.mini-btn { display: inline-block; padding: 14rpx 28rpx; border-radius: 24rpx; font-size: 24rpx; color: #fff; text-align: center; }
+.add-btn { background: #4A6B3A; }
+.table-card { flex: 1; padding: 0; overflow: hidden; }
+.table-header { display: flex; background: rgba(74,107,58,0.15); padding: 20rpx 16rpx; font-size: 24rpx; font-weight: 600; color: #2d4a1f; }
+.th, .td { text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.th-id, .td-id { flex: 1.2; }
+.th-name, .td-name { flex: 1; }
+.th-score, .td-score { flex: 1; }
+.table-body { max-height: 800rpx; overflow-y: auto; }
+.table-row { display: flex; padding: 20rpx 16rpx; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 24rpx; color: #333; }
+.empty-row { padding: 60rpx; text-align: center; font-size: 28rpx; color: #888; }

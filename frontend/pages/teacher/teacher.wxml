@@ -1,0 +1,72 @@
+<view class="page-container">
+  <!-- 背景层 -->
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack">
+      <text class="back-icon">‹</text>
+    </view>
+    <view class="nav-title">教师工作台</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- 顶部欢迎语 -->
+  <view class="header">
+    <view class="welcome">欢迎，{{userInfo.account}}</view>
+    <view class="role-tag">教师</view>
+  </view>
+
+  <!-- 功能卡片列表 -->
+  <view class="card-list">
+    <!-- 1. 学生总表 -->
+    <view class="menu-card glass-card" bindtap="onGoStudentList">
+      <view class="card-icon emoji-icon">📋</view>
+      <view class="card-text">
+        <view class="card-title">学生总表</view>
+        <view class="card-subtitle">全局查看各班学生信息</view>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+
+    <view class="menu-card glass-card" bindtap="onGoClassManage">
+      <view class="card-icon emoji-icon">🏫</view>
+      <view class="card-text">
+        <view class="card-title">班级管理</view>
+        <view class="card-subtitle">增删改查班级信息</view>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+
+    <view class="menu-card glass-card" bindtap="onGoAssistantManage">
+      <view class="card-icon emoji-icon">👨‍🏫</view>
+      <view class="card-text">
+        <view class="card-title">助教管理</view>
+        <view class="card-subtitle">管理助教账号与打分</view>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+
+    <view class="menu-card glass-card" bindtap="onGoDataImport">
+      <view class="card-icon emoji-icon">📥</view>
+      <view class="card-text">
+        <view class="card-title">数据导入</view>
+        <view class="card-subtitle">批量导入学生/助教</view>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+
+    <view class="menu-card glass-card with-badge" bindtap="onGoApproval">
+      <view class="badge" wx:if="{{approvalCount > 0}}">{{approvalCount}}</view>
+      <view class="card-icon emoji-icon">✏️</view>
+      <view class="card-text">
+        <view class="card-title">修改申请审批</view>
+        <view class="card-subtitle">处理学生学时变更</view>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="footer-tip">劳动课学时管理 · 教师端</view>
+</view>

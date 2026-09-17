@@ -1,0 +1,45 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">教师数据管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="toolbar glass-card">
+    <view class="search-box">
+      <input class="search-input" placeholder="搜索姓名 / 工号" value="{{keyword}}" bindinput="onSearch"/>
+    </view>
+    <view class="tool-btns">
+      <view class="tool-btn import-btn" bindtap="onImport">导入</view>
+      <view class="tool-btn export-btn" bindtap="onExport">导出</view>
+    </view>
+  </view>
+
+  <scroll-view class="table-wrap glass-card" scroll-x>
+    <view class="table-inner">
+      <view class="t-row t-head">
+        <view class="t-cell c-name">姓名</view>
+        <view class="t-cell c-code">工号</view>
+        <view class="t-cell c-org">所属学院</view>
+        <view class="t-cell c-class">管理班级</view>
+        <view class="t-cell c-status">状态</view>
+      </view>
+      <view class="t-row" wx:for="{{list}}" wx:key="index">
+        <view class="t-cell c-name">{{item.name}}</view>
+        <view class="t-cell c-code">{{item.code}}</view>
+        <view class="t-cell c-org">{{item.org}}</view>
+        <view class="t-cell c-class">
+          <block wx:if="{{item.managedClasses.length > 0}}">
+            <view class="class-line" wx:for="{{item.managedClasses}}" wx:for-item="cls" wx:key="*this">{{cls}}</view>
+          </block>
+          <text wx:else>—</text>
+        </view>
+        <view class="t-cell c-status {{item.status === 'enabled' ? 'status-on' : 'status-off'}}">{{item.statusText}}</view>
+      </view>
+      <view class="empty-row" wx:if="{{list.length === 0}}">暂无数据，请点击「导入」添加</view>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,205 @@
+.page-container {
+  position: relative;
+  min-height: 100vh;
+  padding: 0 48rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 背景层 */
+.bg-image {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -2;
+}
+
+.bg-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.15) 100%);
+  z-index: -1;
+}
+
+/* 自定义导航栏 */
+.custom-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60rpx 32rpx 20rpx;
+}
+
+.nav-back {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.back-icon {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.nav-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+}
+
+.nav-placeholder {
+  width: 60rpx;
+}
+
+/* 顶部欢迎语 */
+.header {
+  padding-top: 40rpx;
+  padding-bottom: 40rpx;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+.welcome {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.3);
+}
+
+.role-tag {
+  font-size: 24rpx;
+  color: #ffffff;
+  background: rgba(74, 107, 58, 0.8);
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+/* 毛玻璃卡片 */
+.glass-card {
+  margin-top: 20rpx;
+  background-color: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 28rpx;
+  padding: 56rpx 44rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.card-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #2d4a1f;
+  margin-bottom: 40rpx;
+  text-align: center;
+}
+
+.form-item {
+  margin-bottom: 36rpx;
+}
+
+.label {
+  font-size: 26rpx;
+  color: #333333;
+  margin-bottom: 14rpx;
+  font-weight: 500;
+}
+
+.picker-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 88rpx;
+  padding: 0 28rpx;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 14rpx;
+  font-size: 32rpx;
+  color: #333333;
+  box-sizing: border-box;
+}
+
+.arrow {
+  color: #999999;
+  font-size: 36rpx;
+}
+
+/* 班级预览 */
+.class-preview {
+  margin: 40rpx 0;
+  padding: 24rpx 28rpx;
+  background: rgba(74, 107, 58, 0.12);
+  border-radius: 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.preview-label {
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.preview-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2d4a1f;
+}
+
+/* 深绿色织布纹理按钮（共享样式） */
+.weave-btn {
+  position: relative;
+  width: 100%;
+  height: 96rpx;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4A6B3A;
+  background-image:
+    repeating-linear-gradient(90deg,
+      rgba(255, 255, 255, 0.10) 0rpx,
+      rgba(255, 255, 255, 0.10) 2rpx,
+      transparent 2rpx,
+      transparent 8rpx),
+    repeating-linear-gradient(0deg,
+      rgba(0, 0, 0, 0.12) 0rpx,
+      rgba(0, 0, 0, 0.12) 2rpx,
+      transparent 2rpx,
+      transparent 8rpx);
+  color: #ffffff;
+  font-size: 34rpx;
+  font-weight: 600;
+  border-radius: 48rpx;
+  border: none;
+  letter-spacing: 8rpx;
+  box-shadow: 0 8rpx 24rpx rgba(50, 76, 40, 0.45),
+    inset 0 2rpx 4rpx rgba(255, 255, 255, 0.15);
+}
+
+.weave-btn::after { border: none; }
+.weave-btn:active { opacity: 0.88; transform: scale(0.99); }
+
+/* 底部 */
+.footer-tip {
+  margin-top: auto;
+  padding-bottom: 60rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.3);
+}

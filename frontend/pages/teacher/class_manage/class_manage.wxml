@@ -1,0 +1,39 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">班级管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="filter-card glass-card">
+    <view class="filter-label">选择班级</view>
+    <picker mode="selector" range="{{classOptions}}" value="{{classIndex}}" bindchange="onClassChange">
+      <view class="picker-value">
+        <text>{{classOptions[classIndex]}}</text>
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+    <view class="btn-row">
+      <view class="mini-btn add-btn" bindtap="onAddClass">+ 新增班级</view>
+    </view>
+  </view>
+
+  <view class="table-card glass-card">
+    <view class="table-header">
+      <view class="th th-id">学号</view>
+      <view class="th th-name">姓名</view>
+      <view class="th th-score">当前学时</view>
+    </view>
+    <view class="table-body" wx:if="{{filteredList.length > 0}}">
+      <view class="table-row" wx:for="{{filteredList}}" wx:key="id">
+        <view class="td td-id">{{item.id}}</view>
+        <view class="td td-name">{{item.name}}</view>
+        <view class="td td-score">{{item.inputScore || item.score || '—'}}</view>
+      </view>
+    </view>
+    <view class="empty-row" wx:else>暂无数据</view>
+  </view>
+</view>

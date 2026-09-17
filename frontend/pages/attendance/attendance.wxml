@@ -1,0 +1,71 @@
+<view class="page-container">
+  <!-- 背景层 -->
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <!-- 顶部信息 -->
+  <view class="page-header">
+    <view class="page-title">考勤记录</view>
+    <view class="page-sub">{{className}}</view>
+  </view>
+
+  <!-- 学生考勤列表 -->
+  <view class="student-list">
+    <view class="student-card glass-card {{item.highlight ? 'card-highlight' : ''}}"
+          wx:for="{{students}}" wx:key="id"
+          id="student-{{item.id}}">
+      <!-- 左侧信息 -->
+      <view class="student-info">
+        <view class="info-name-row">
+          <text class="info-name">{{item.name}}</text>
+          <text class="need-approval-tag" wx:if="{{item.needApproval}}">需审批</text>
+        </view>
+        <view class="info-id">{{item.id}}</view>
+        <view class="info-meta">
+          <text>{{item.college}}</text>
+          <text class="meta-sep">·</text>
+          <text>{{item.major}}</text>
+        </view>
+      </view>
+
+      <!-- 右侧操作 -->
+      <view class="student-ops">
+        <view class="score-box {{activeIdx === index ? 'score-active' : ''}}"
+              data-idx="{{index}}"
+              bindtap="onScoreTap">
+          <text class="score-text">{{item.inputScore || ''}}</text>
+        </view>
+        <view class="modify-btn" data-idx="{{index}}" bindtap="onGoModify">修改</view>
+      </view>
+    </view>
+    <view class="list-bottom">共 {{students.length}} 名学生</view>
+  </view>
+
+  <!-- 九宫格键盘遮罩层 -->
+  <view class="keyboard-mask" wx:if="{{keyboardVisible}}" bindtap="onHideKeyboard"></view>
+
+  <!-- 九宫格键盘面板 -->
+  <view class="keyboard-panel {{keyboardVisible ? 'keyboard-show' : 'keyboard-hide'}}">
+    <view class="keyboard-title">考勤打分</view>
+    <view class="keyboard-grid">
+      <block wx:for="{{keys}}" wx:key="*this">
+        <view wx:if="{{item === 'del'}}"
+              class="key-item key-del"
+              data-key="del"
+              catchtap="onKeyTap">删除</view>
+        <view wx:elif="{{item === 'confirm'}}"
+              class="key-item key-confirm"
+              data-key="confirm"
+              catchtap="onKeyTap">确认</view>
+        <view wx:else
+              class="key-item weave-key"
+              data-key="{{item}}"
+              catchtap="onKeyTap">{{item}}</view>
+      </block>
+    </view>
+    <view class="buffer-preview" wx:if="{{keyboardVisible}}">
+      <text class="buffer-label">当前输入：</text>
+      <text class="buffer-value">{{bufferScore || '—'}}</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,28 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">助教管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="list-card glass-card" wx:if="{{assistantList.length > 0}}">
+    <view class="assistant-row" wx:for="{{assistantList}}" wx:key="id">
+      <view class="asst-info">
+        <view class="asst-avatar">👨‍🏫</view>
+        <view class="asst-text">
+          <view class="asst-name">{{item.name}}</view>
+          <view class="asst-id">{{item.id}}</view>
+        </view>
+      </view>
+      <view class="asst-score-row">
+        <view class="asst-score-label">当前分数</view>
+        <view class="asst-score">{{item.score || '—'}}</view>
+        <view class="score-btn" data-index="{{index}}" bindtap="onScoreTap">打分</view>
+      </view>
+    </view>
+  </view>
+  <view class="empty-card glass-card" wx:else>暂无助教数据</view>
+</view>

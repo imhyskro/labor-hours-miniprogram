@@ -1,0 +1,42 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">学生数据管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="toolbar glass-card">
+    <view class="search-box">
+      <input class="search-input" placeholder="搜索姓名 / 学号" value="{{keyword}}" bindinput="onSearch"/>
+    </view>
+    <view class="tool-btns">
+      <view class="tool-btn import-btn" bindtap="onImport">导入</view>
+      <view class="tool-btn export-btn" bindtap="onExport">导出</view>
+    </view>
+  </view>
+
+  <scroll-view class="table-wrap glass-card" scroll-x>
+    <view class="table-inner">
+      <view class="t-row t-head">
+        <view class="t-cell c-name">姓名</view>
+        <view class="t-cell c-code">学号</view>
+        <view class="t-cell c-college">学院</view>
+        <view class="t-cell c-major">专业</view>
+        <view class="t-cell c-hours">累计学时</view>
+        <view class="t-cell c-score">成绩</view>
+      </view>
+      <view class="t-row" wx:for="{{list}}" wx:key="index">
+        <view class="t-cell c-name">{{item.name}}</view>
+        <view class="t-cell c-code">{{item.code}}</view>
+        <view class="t-cell c-college">{{item.college}}</view>
+        <view class="t-cell c-major">{{item.major}}</view>
+        <view class="t-cell c-hours">{{item.totalHours}}</view>
+        <view class="t-cell c-score">{{item.score}}</view>
+      </view>
+      <view class="empty-row" wx:if="{{list.length === 0}}">暂无数据，请点击「导入」添加</view>
+    </view>
+  </scroll-view>
+</view>

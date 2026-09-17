@@ -1,0 +1,39 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">用户与权限管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- 筛选区 -->
+  <view class="filter-card glass-card">
+    <input class="search-input" placeholder="搜索用户名/姓名" placeholder-style="color:#999" value="{{keyword}}" bindinput="onSearchInput" />
+    <view class="role-tabs">
+      <view class="tab-item {{roleFilter === '' ? 'tab-active' : ''}}" data-role="" bindtap="onRoleTap">全部</view>
+      <view class="tab-item {{roleFilter === 'teacher' ? 'tab-active' : ''}}" data-role="teacher" bindtap="onRoleTap">教师</view>
+      <view class="tab-item {{roleFilter === 'assistant' ? 'tab-active' : ''}}" data-role="assistant" bindtap="onRoleTap">助教</view>
+    </view>
+  </view>
+
+  <!-- 用户列表 -->
+  <view class="user-list" wx:if="{{filteredList.length > 0}}">
+    <view class="user-card glass-card" wx:for="{{filteredList}}" wx:key="id">
+      <view class="user-head">
+        <view class="user-name">{{item.realName}}</view>
+        <view class="role-tag tag-{{item.role}}">{{item.roleName}}</view>
+      </view>
+      <view class="user-meta">用户名：{{item.username}}</view>
+      <view class="user-meta tiny">创建时间：{{item.createTime}}</view>
+      <view class="user-ops">
+        <view class="op-btn {{item.status === 'enabled' ? 'op-disable' : 'op-enable'}}" data-index="{{index}}" bindtap="onToggleStatus">
+          {{item.status === 'enabled' ? '停用' : '启用'}}
+        </view>
+        <view class="op-btn op-reset" data-index="{{index}}" bindtap="onResetPwd">重置密码</view>
+      </view>
+    </view>
+  </view>
+  <view class="empty-card glass-card" wx:else>暂无用户数据</view>
+</view>

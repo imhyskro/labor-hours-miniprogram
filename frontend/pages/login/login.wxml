@@ -1,0 +1,47 @@
+<view class="login-container">
+  <!-- bg -->
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <!-- header -->
+  <view class="header">
+    <view class="logo-icon">🌳</view>
+    <view class="title">劳动课学时管理</view>
+    <view class="subtitle">Labour Course Hours Management</view>
+  </view>
+
+  <!-- form -->
+  <view class="form-card">
+    <!-- role -->
+    <view class="form-item">
+      <view class="label">账号类型</view>
+      <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange">
+        <view class="picker-value">
+          <text class="{{roleIndex === 0 ? 'placeholder' : ''}}">{{roleOptions[roleIndex]}}</text>
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- account -->
+    <view class="form-item">
+      <view class="label">账号</view>
+      <input class="input" type="text" placeholder="请输入账号" placeholder-style="font-size: 24rpx; color: #999999;" value="{{account}}" bindinput="onAccountInput" />
+    </view>
+
+    <!-- password with dynamic hint -->
+    <view class="form-item">
+      <view class="label-row">
+        <text class="label">密码</text>
+        <text class="pwd-hint" wx:if="{{role === 'assistant'}}">初始密码为9位学号</text>
+        <text class="pwd-hint" wx:else>8位.仅字母和数字</text>
+      </view>
+      <input class="input" type="password" placeholder="请输入密码" placeholder-style="font-size: 24rpx; color: #999999;" value="{{password}}" bindinput="onPasswordInput" />
+    </view>
+
+    <!-- login btn -->
+    <button class="login-btn" bindtap="onLogin">登 录</button>
+  </view>
+
+  <view class="footer-tip">仅供高校教学管理使用</view>
+</view>

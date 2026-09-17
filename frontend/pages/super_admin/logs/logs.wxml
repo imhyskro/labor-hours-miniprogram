@@ -1,0 +1,28 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">操作日志与审计</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="timeline" wx:if="{{logs.length > 0}}">
+    <view class="tl-item" wx:for="{{logs}}" wx:key="id">
+      <view class="tl-left">
+        <view class="tl-dot"></view>
+        <view class="tl-line" wx:if="{{index < logs.length - 1}}"></view>
+      </view>
+      <view class="tl-card glass-card">
+        <view class="tl-summary">{{item.content}}</view>
+        <view class="tl-detail">{{item.time}}</view>
+        <view class="tl-operator">{{item.operator}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-tip" wx:else>暂无操作日志</view>
+
+  <view class="footer-tip">劳动课学时管理 · 超级管理员端</view>
+</view>

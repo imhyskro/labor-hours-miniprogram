@@ -1,0 +1,66 @@
+<view class="page-container">
+  <!-- 背景层 -->
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <!-- 自定义导航栏：返回箭头 + 标题 -->
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack">
+      <text class="back-icon">‹</text>
+    </view>
+    <view class="nav-title">助教工作台</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- 顶部欢迎语 -->
+  <view class="header">
+    <view class="welcome">欢迎，{{userInfo.account}}</view>
+    <view class="role-tag">助教</view>
+  </view>
+
+  <!-- 主卡片：班级选择 -->
+  <view class="glass-card">
+    <view class="card-title">班级选择</view>
+
+    <view class="form-item">
+      <view class="label">周几</view>
+      <picker mode="selector" range="{{days}}" value="{{dayIndex}}" bindchange="onDayChange">
+        <view class="picker-value">
+          <text>{{days[dayIndex]}}</text>
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <view class="label">节次</view>
+      <picker mode="selector" range="{{periods}}" value="{{periodIndex}}" bindchange="onPeriodChange">
+        <view class="picker-value">
+          <text>{{periods[periodIndex]}}</text>
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <view class="label">地点</view>
+      <picker mode="selector" range="{{locations}}" value="{{locationIndex}}" bindchange="onLocationChange">
+        <view class="picker-value">
+          <text>{{locations[locationIndex]}}</text>
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <!-- 当前班级预览 -->
+    <view class="class-preview">
+      <text class="preview-label">当前班级</text>
+      <text class="preview-name">{{days[dayIndex]}}-{{periods[periodIndex]}}-{{locations[locationIndex]}}</text>
+    </view>
+
+    <!-- 进入班级按钮 -->
+    <button class="weave-btn" bindtap="onEnterClass">进入班级</button>
+  </view>
+
+  <view class="footer-tip">劳动课学时管理 · 助教端</view>
+</view>

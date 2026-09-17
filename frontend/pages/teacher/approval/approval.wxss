@@ -1,0 +1,31 @@
+.page-container { position: relative; min-height: 100vh; padding: 0 32rpx; box-sizing: border-box; display: flex; flex-direction: column; }
+.bg-image { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; }
+.bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.15) 100%); z-index: -1; }
+.custom-nav { display: flex; align-items: center; justify-content: space-between; padding: 60rpx 32rpx 20rpx; }
+.nav-back { width: 60rpx; height: 60rpx; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4); border-radius: 50%; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.back-icon { font-size: 44rpx; font-weight: 700; color: #fff; line-height: 1; }
+.nav-title { font-size: 34rpx; font-weight: 600; color: #fff; text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.3); }
+.nav-placeholder { width: 60rpx; }
+.glass-card { background-color: rgba(255,255,255,0.25); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); border-radius: 28rpx; box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06); }
+.list-wrap { display: flex; flex-direction: column; gap: 24rpx; margin-top: 20rpx; }
+.apply-card { padding: 28rpx 32rpx; }
+.card-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16rpx; }
+.student-name { font-size: 32rpx; font-weight: 700; color: #2d4a1f; }
+.student-id { font-size: 22rpx; color: #888; }
+.score-row { display: flex; align-items: center; justify-content: center; gap: 24rpx; padding: 20rpx; background: rgba(74,107,58,0.08); border-radius: 14rpx; margin-bottom: 16rpx; }
+.score-box { text-align: center; }
+.score-label { font-size: 22rpx; color: #888; }
+.score-val { font-size: 40rpx; font-weight: 700; color: #333; margin-top: 4rpx; }
+.apply-score { color: #E53935; }
+.score-arrow { font-size: 36rpx; color: #4A6B3A; font-weight: 700; }
+.reason-row { margin-bottom: 12rpx; }
+.reason-label { font-size: 22rpx; color: #888; margin-bottom: 4rpx; }
+.reason-text { font-size: 26rpx; color: #333; line-height: 1.5; }
+.apply-time { font-size: 22rpx; color: #aaa; margin-bottom: 16rpx; }
+.btn-row { display: flex; gap: 20rpx; }
+.op-btn { flex: 1; height: 72rpx; line-height: 72rpx; text-align: center; border-radius: 36rpx; font-size: 28rpx; font-weight: 500; }
+.btn-reject { background: rgba(158,158,158,0.85); color: #fff; }
+.btn-approve { background: #4A6B3A; color: #fff; }
+.empty-card { margin-top: 80rpx; padding: 80rpx 32rpx; text-align: center; }
+.empty-icon { font-size: 80rpx; margin-bottom: 16rpx; }
+.empty-text { font-size: 28rpx; color: #888; }

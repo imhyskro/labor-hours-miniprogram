@@ -1,0 +1,149 @@
+.page-container {
+  position: relative;
+  min-height: 100vh;
+  padding: 0 48rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 背景层 */
+.bg-image {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -2;
+}
+
+.bg-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.15) 100%);
+  z-index: -1;
+}
+
+/* 通用毛玻璃卡片 */
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 顶部班级信息 */
+.class-header {
+  margin-top: 60rpx;
+  padding: 48rpx 40rpx;
+  text-align: center;
+}
+
+.class-label {
+  font-size: 26rpx;
+  color: #666666;
+  margin-bottom: 16rpx;
+}
+
+.class-name {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #2d4a1f;
+  margin-bottom: 20rpx;
+}
+
+.class-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+.meta-item {
+  font-size: 28rpx;
+  color: #4A6B3A;
+  font-weight: 500;
+}
+
+.meta-sep {
+  color: #999999;
+}
+
+/* 功能入口列表 */
+.entry-list {
+  margin-top: 48rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+}
+
+.entry-card {
+  padding: 40rpx 36rpx;
+  display: flex;
+  align-items: center;
+  gap: 28rpx;
+}
+
+.entry-card:active {
+  opacity: 0.88;
+  transform: scale(0.99);
+}
+
+.entry-icon {
+  width: 96rpx;
+  height: 96rpx;
+  background: rgba(74, 107, 58, 0.15);
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+}
+
+.entry-text {
+  flex: 1;
+}
+
+.entry-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #2d4a1f;
+  margin-bottom: 8rpx;
+}
+
+.entry-desc {
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.entry-arrow {
+  font-size: 40rpx;
+  color: #999999;
+}
+
+/* 红色未读角标 */
+.badge {
+  min-width: 36rpx;
+  height: 36rpx;
+  line-height: 36rpx;
+  padding: 0 10rpx;
+  background: #F44336;
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: 600;
+  border-radius: 18rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 8rpx rgba(244, 67, 54, 0.4);
+}
+
+/* 底部 */
+.footer-tip {
+  margin-top: auto;
+  padding-bottom: 60rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,42 @@
+<view class="page-container">
+  <!-- 背景层 -->
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <!-- 顶部班级信息卡片 -->
+  <view class="class-header glass-card">
+    <view class="class-label">当前班级</view>
+    <view class="class-name">{{className}}</view>
+    <view class="class-meta">
+      <text class="meta-item">{{day}}</text>
+      <text class="meta-sep">·</text>
+      <text class="meta-item">{{period}}</text>
+      <text class="meta-sep">·</text>
+      <text class="meta-item">{{location}}</text>
+    </view>
+  </view>
+
+  <!-- 功能入口 -->
+  <view class="entry-list">
+    <view class="entry-card glass-card" bindtap="onGoAttendance">
+      <view class="entry-icon">📋</view>
+      <view class="entry-text">
+        <view class="entry-title">考勤管理</view>
+        <view class="entry-desc">查看学生考勤记录，快捷打分</view>
+      </view>
+      <view class="entry-arrow">›</view>
+    </view>
+
+    <view class="entry-card glass-card" bindtap="onGoModifyApply">
+      <view class="entry-icon">✏️</view>
+      <view class="entry-text">
+        <view class="entry-title">修改考勤</view>
+        <view class="entry-desc">考勤修改申请与审批状态</view>
+      </view>
+      <view wx:if="{{modifyBadge > 0}}" class="badge">{{modifyBadge}}</view>
+      <view class="entry-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="footer-tip">班级管理中心</view>
+</view>

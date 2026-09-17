@@ -1,0 +1,37 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">数据导入</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="import-card glass-card">
+    <view class="import-title">批量数据导入</view>
+    <view class="import-desc">支持 Excel / CSV 文件导入，导入后将自动合并到本地数据</view>
+
+    <view class="import-btn weave-btn" bindtap="onImportStudents">
+      <text class="btn-emoji">📋</text>
+      <view class="btn-text">
+        <view class="btn-title">导入学生数据</view>
+        <view class="btn-sub">批量导入各班学生名单</view>
+      </view>
+    </view>
+
+    <view class="import-btn weave-btn" bindtap="onImportAssistants">
+      <text class="btn-emoji">👨‍🏫</text>
+      <view class="btn-text">
+        <view class="btn-title">导入助教数据</view>
+        <view class="btn-sub">批量导入助教账号信息</view>
+      </view>
+    </view>
+
+    <view class="import-tip">
+      <view class="tip-title">📄 模板说明</view>
+      <view class="tip-line">• 学生表需包含：学号、姓名、班级</view>
+      <view class="tip-line">• 助教表需包含：工号、姓名</view>
+    </view>
+  </view>
+</view>

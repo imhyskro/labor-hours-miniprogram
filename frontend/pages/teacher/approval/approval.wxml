@@ -1,0 +1,43 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">修改申请审批</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="list-wrap" wx:if="{{pendingList.length > 0}}">
+    <view class="apply-card glass-card" wx:for="{{pendingList}}" wx:key="id">
+      <view class="card-head">
+        <view class="student-name">{{item.studentName}}</view>
+        <view class="student-id">{{item.studentId}}</view>
+      </view>
+      <view class="score-row">
+        <view class="score-box">
+          <view class="score-label">原分数</view>
+          <view class="score-val">{{item.originScore}}</view>
+        </view>
+        <view class="score-arrow">→</view>
+        <view class="score-box">
+          <view class="score-label">申请分数</view>
+          <view class="score-val apply-score">{{item.currentScore || '—'}}</view>
+        </view>
+      </view>
+      <view class="reason-row">
+        <view class="reason-label">申请理由</view>
+        <view class="reason-text">{{item.applyReason || '—'}}</view>
+      </view>
+      <view class="apply-time">申请时间：{{item.applyTime}}</view>
+      <view class="btn-row">
+        <view class="op-btn btn-reject" data-id="{{item.id}}" bindtap="onReject">驳回</view>
+        <view class="op-btn btn-approve" data-item="{{item}}" bindtap="onApprove">同意</view>
+      </view>
+    </view>
+  </view>
+  <view class="empty-card glass-card" wx:else>
+    <view class="empty-icon">✅</view>
+    <view class="empty-text">暂无需审批的申请</view>
+  </view>
+</view>

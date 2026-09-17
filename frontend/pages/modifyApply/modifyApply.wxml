@@ -1,0 +1,81 @@
+<view class="page-container">
+  <!-- 背景层（fixed 固定） -->
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <!-- 顶部标题 -->
+  <view class="page-header">
+    <view class="page-title">考勤修改记录</view>
+    <view class="page-sub" wx:if="{{studentFilter}}">学生：{{studentName}}</view>
+    <view class="page-sub" wx:else>{{className}}</view>
+  </view>
+
+  <!-- 申请记录列表（原生滚动） -->
+  <view class="apply-list">
+    <block wx:for="{{list}}" wx:key="id">
+      <view class="apply-card glass-card">
+        <!-- 顶部：学生 + 状态 -->
+        <view class="card-top">
+          <view class="student-block">
+            <view class="student-name">{{item.studentName}}</view>
+            <view class="student-id">{{item.studentId}}</view>
+            <view class="student-meta">
+              <text>{{item.college || '—'}}</text>
+              <text class="meta-sep">·</text>
+              <text>{{item.major || '—'}}</text>
+            </view>
+          </view>
+          <view class="status-tag status-{{item.status}}">{{item.statusText}}</view>
+        </view>
+
+        <!-- 详情 -->
+        <view class="card-detail">
+          <view class="detail-row">
+            <text class="detail-label">原考勤</text>
+            <text class="detail-value score-badge">{{item.originScore}}</text>
+          </view>
+          <view class="detail-row" wx:if="{{item.status === 'modified' || item.status === 'approved'}}">
+            <text class="detail-label">当前考勤</text>
+            <text class="detail-value score-badge score-current">{{item.currentScore}}</text>
+          </view>
+          <view class="detail-row">
+            <text class="detail-label">申请理由</text>
+            <text class="detail-value">{{item.applyReason || '—'}}</text>
+          </view>
+          <view class="detail-row">
+            <text class="detail-label">审批老师</text>
+            <text class="detail-value">{{item.teacher}}</text>
+          </view>
+          <view class="detail-row">
+            <text class="detail-label">申请时间</text>
+            <text class="detail-value">{{item.applyTime}}</text>
+          </view>
+          <!-- 3 天自动撤销倒计时 -->
+          <view class="detail-row" wx:if="{{item.revokeCountdown}}">
+            <text class="detail-label">失效提醒</text>
+            <text class="detail-value countdown-text">{{item.revokeCountdown}}</text>
+          </view>
+        </view>
+
+        <!-- 操作按钮（助教无审批权限，仅可撤销/改分） -->
+        <view class="card-ops">
+          <block wx:if="{{item.status === 'pending'}}">
+            <view class="op-btn op-revoke" data-id="{{item.id}}" bindtap="onRevoke">撤销</view>
+          </block>
+          <block wx:elif="{{item.status === 'approved'}}">
+            <view class="op-btn op-modify" data-item="{{item}}" bindtap="onModify">去修改考勤</view>
+          </block>
+          <block wx:elif="{{item.status === 'modified'}}">
+            <view class="op-btn op-modified-tag">已完成修改</view>
+          </block>
+          <block wx:elif="{{item.status === 'draft'}}">
+            <view class="op-btn op-submit" data-item="{{item}}" bindtap="onSubmitApply">编辑申请</view>
+          </block>
+        </view>
+      </view>
+    </block>
+
+    <view class="list-bottom" wx:if="{{list.length === 0}}">暂无修改申请记录</view>
+    <view class="list-bottom" wx:else>共 {{list.length}} 条申请记录</view>
+  </view>
+</view>

@@ -1,0 +1,41 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">班级师资分配</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- 教师选择（滑动选择式） -->
+  <view class="filter-card glass-card">
+    <view class="filter-label">选择责任教师</view>
+    <picker mode="selector" range="{{teacherOptions}}" value="{{teacherIndex}}" bindchange="onTeacherChange">
+      <view class="picker-value">
+        <text>{{teacherOptions[teacherIndex]}}</text>
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 班级列表（勾选式） -->
+  <view class="teacher-card glass-card">
+    <view class="list-title">选择班级</view>
+    <view class="teacher-list">
+      <checkbox-group bindchange="onClassChange">
+        <label class="teacher-item {{item.isSelected ? 'selected' : ''}}"
+               wx:for="{{classList}}" wx:key="id">
+          <checkbox value="{{item.id}}" checked="{{item.isSelected}}" color="#4A6B3A" class="ck"/>
+          <view class="t-name">{{item.name}}</view>
+        </label>
+      </checkbox-group>
+    </view>
+    <view class="empty-tip" wx:if="{{classList.length === 0}}">暂无班级数据</view>
+  </view>
+
+  <!-- 底部固定按钮 -->
+  <view class="bottom-bar">
+    <view class="weave-btn" bindtap="onConfirm">确认分配</view>
+  </view>
+</view>

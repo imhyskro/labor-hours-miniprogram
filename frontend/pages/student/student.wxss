@@ -1,0 +1,17 @@
+.workbench {
+  min-height: 100vh;
+  padding: 60rpx 40rpx;
+  background: #F5F7FA;
+}
+
+.welcome {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1E88E5;
+}
+
+.desc {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #666666;
+}

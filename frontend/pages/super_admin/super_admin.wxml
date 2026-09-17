@@ -1,0 +1,64 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">超级管理员</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="header">
+    <view class="welcome">欢迎，{{userInfo.account}}</view>
+    <view class="role-tag">超管</view>
+  </view>
+
+  <view class="card-list">
+    <view class="menu-card glass-card" bindtap="onGoUserManage">
+      <view class="card-icon emoji-icon">👥</view>
+      <view class="card-text">
+        <view class="card-title">用户与权限管理</view>
+        <view class="card-subtitle">管理教师与助教账号</view>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+
+    <view class="menu-card glass-card" bindtap="onGoAssignTeacher">
+      <view class="card-icon emoji-icon">🤝</view>
+      <view class="card-text">
+        <view class="card-title">班级师资分配</view>
+        <view class="card-subtitle">为班级分配责任教师</view>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+
+    <view class="menu-card glass-card" bindtap="onGoDashboard">
+      <view class="card-icon emoji-icon">📊</view>
+      <view class="card-text">
+        <view class="card-title">系统数据总览</view>
+        <view class="card-subtitle">学生与教师数据入口</view>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+
+    <view class="menu-card glass-card" bindtap="onGoLogs">
+      <view class="card-icon emoji-icon">📋</view>
+      <view class="card-text">
+        <view class="card-title">操作日志与审计</view>
+        <view class="card-subtitle">查看系统操作记录</view>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+
+    <view class="menu-card glass-card" bindtap="onGoSettings">
+      <view class="card-icon emoji-icon">⚙️</view>
+      <view class="card-text">
+        <view class="card-title">系统设置</view>
+        <view class="card-subtitle">数据管理与重置</view>
+      </view>
+      <view class="card-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="footer-tip">劳动课学时管理 · 超级管理员端</view>
+</view>

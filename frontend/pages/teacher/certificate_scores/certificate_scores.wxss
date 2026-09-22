@@ -1,0 +1,53 @@
+.page-container { min-height: 100vh; position: relative; }
+.bg-image { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; }
+.bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.15) 100%); z-index: -1; }
+page { padding-bottom: 60rpx; }
+
+/* 自定义导航 */
+.custom-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 32rpx; height: 88rpx; margin-top: env(safe-area-inset-top); position: relative; z-index: 1; }
+.nav-back { width: 64rpx; height: 64rpx; display: flex; align-items: center; justify-content: center; }
+.back-icon { font-size: 56rpx; color: #fff; font-weight: 300; }
+.nav-title { font-size: 34rpx; font-weight: 600; color: #fff; }
+.nav-placeholder { width: 64rpx; }
+
+/* 毛玻璃卡片 */
+.glass-card { background-color: rgba(255,255,255,0.25); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); border-radius: 28rpx; box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06); }
+
+/* 筛选栏 */
+.filter-bar { margin: 24rpx 32rpx; padding: 20rpx 28rpx; display: flex; align-items: center; gap: 20rpx; flex-wrap: wrap; position: relative; z-index: 1; }
+.filter-item { display: flex; align-items: center; gap: 8rpx; }
+.filter-label { font-size: 24rpx; color: #666; }
+.filter-value { font-size: 26rpx; color: #2d4a1f; font-weight: 500; }
+.arrow { font-size: 32rpx; color: #4A6B3A; }
+.export-btn { margin-left: auto; height: 56rpx; line-height: 56rpx; padding: 0 24rpx; background: #4A6B3A; color: #fff; font-size: 24rpx; border-radius: 28rpx; }
+
+/* 成绩列表 */
+.score-list { padding: 0 32rpx; position: relative; z-index: 1; }
+.score-card { display: flex; align-items: center; padding: 24rpx 28rpx; margin-bottom: 16rpx; }
+.score-info { flex: 1; }
+.score-name { font-size: 30rpx; font-weight: 600; color: #2d4a1f; }
+.score-no { font-size: 22rpx; color: #888; margin-top: 6rpx; }
+.score-meta { font-size: 20rpx; color: #aaa; margin-top: 4rpx; }
+.score-value { width: 160rpx; text-align: center; }
+.val-num { font-size: 40rpx; font-weight: 700; color: #4A6B3A; }
+.val-empty { font-size: 24rpx; color: #bbb; font-weight: 400; }
+.score-actions { display: flex; flex-direction: column; gap: 10rpx; }
+.action-btn { height: 52rpx; line-height: 52rpx; padding: 0 20rpx; font-size: 22rpx; border-radius: 26rpx; text-align: center; }
+.edit-btn { background: #4A6B3A; color: #fff; }
+.del-btn { background: #C93E39; color: #fff; }
+.list-bottom { text-align: center; color: #999; font-size: 24rpx; padding: 32rpx 0; }
+
+/* 弹窗 */
+.modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; }
+.modal-panel { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 600rpx; background: #fff; border-radius: 24rpx; padding: 40rpx; z-index: 1001; }
+.modal-show { opacity: 1; }
+.modal-hide { opacity: 0; pointer-events: none; }
+.modal-title { font-size: 32rpx; font-weight: 600; color: #2d4a1f; text-align: center; }
+.modal-student { font-size: 26rpx; color: #666; text-align: center; margin-top: 12rpx; }
+.modal-field { margin-top: 28rpx; }
+.modal-label { font-size: 26rpx; color: #333; display: block; margin-bottom: 10rpx; }
+.modal-input { height: 80rpx; border: 1rpx solid #e0e0e0; border-radius: 12rpx; padding: 0 20rpx; font-size: 28rpx; }
+.modal-btns { display: flex; gap: 20rpx; margin-top: 36rpx; }
+.modal-btn { flex: 1; height: 80rpx; line-height: 80rpx; text-align: center; border-radius: 40rpx; font-size: 28rpx; }
+.cancel { background: #f5f5f5; color: #666; }
+.confirm { background: #4A6B3A; color: #fff; }

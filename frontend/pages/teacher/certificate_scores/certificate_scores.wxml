@@ -1,0 +1,77 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">换证考试成绩</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- 筛选栏 -->
+  <view class="filter-bar glass-card">
+    <picker mode="selector" range="{{classOptions}}" value="{{classIndex}}" bindchange="onClassChange">
+      <view class="filter-item">
+        <text class="filter-label">班级</text>
+        <text class="filter-value">{{classOptions[classIndex] || '暂无'}}</text>
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+    <picker mode="selector" range="{{yearOptions}}" value="{{yearIndex}}" bindchange="onYearChange">
+      <view class="filter-item">
+        <text class="filter-label">学年</text>
+        <text class="filter-value">{{yearOptions[yearIndex]}}</text>
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+    <picker mode="selector" range="{{semesterOptions}}" value="{{semesterIndex}}" bindchange="onSemesterChange">
+      <view class="filter-item">
+        <text class="filter-label">学期</text>
+        <text class="filter-value">{{semesterOptions[semesterIndex]}}</text>
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+    <view class="export-btn" bindtap="onExport">导出</view>
+  </view>
+
+  <!-- 成绩列表 -->
+  <view class="score-list">
+    <view class="score-card glass-card" wx:for="{{scores}}" wx:key="studentId">
+      <view class="score-info">
+        <view class="score-name">{{item.studentName}}</view>
+        <view class="score-no">学号 {{item.studentNo}}</view>
+        <view class="score-meta" wx:if="{{item.studentNoInClass}}">班内编号 {{item.studentNoInClass}}</view>
+      </view>
+      <view class="score-value">
+        <text class="val-num {{item.finalScore === null ? 'val-empty' : ''}}">
+          {{item.finalScore === null ? '未录入' : item.finalScore}}
+        </text>
+      </view>
+      <view class="score-actions">
+        <view class="action-btn edit-btn" data-idx="{{index}}" bindtap="onEditScore">登记</view>
+        <view class="action-btn del-btn" data-idx="{{index}}" bindtap="onDeleteScore">删除</view>
+      </view>
+    </view>
+    <view class="list-bottom" wx:if="{{scores.length}}">共 {{scores.length}} 名学生</view>
+    <view class="list-bottom" wx:else>暂无数据</view>
+  </view>
+
+  <!-- 登记弹窗 -->
+  <view class="modal-mask" wx:if="{{editVisible}}" bindtap="hideEdit"></view>
+  <view class="modal-panel {{editVisible ? 'modal-show' : 'modal-hide'}}">
+    <view class="modal-title">登记换证成绩</view>
+    <view class="modal-student" wx:if="{{editStudent}}">{{editStudent.studentName}}（{{editStudent.studentNo}}）</view>
+    <view class="modal-field">
+      <text class="modal-label">最终成绩（0-100）</text>
+      <input class="modal-input" type="digit" value="{{editScore}}" bindinput="onScoreInput" placeholder="请输入成绩" />
+    </view>
+    <view class="modal-field">
+      <text class="modal-label">备注</text>
+      <input class="modal-input" value="{{editRemark}}" bindinput="onRemarkInput" placeholder="选填" />
+    </view>
+    <view class="modal-btns">
+      <view class="modal-btn cancel" bindtap="hideEdit">取消</view>
+      <view class="modal-btn confirm" bindtap="confirmScore">保存</view>
+    </view>
+  </view>
+</view>

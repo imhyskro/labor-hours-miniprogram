@@ -1,0 +1,48 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">助教数据管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="toolbar glass-card">
+    <view class="search-box">
+      <input class="search-input" placeholder="搜索姓名 / 学号" value="{{keyword}}" bindinput="onSearch" bindconfirm="onSearchConfirm"/>
+    </view>
+    <view class="tool-btns">
+      <view class="tool-btn import-btn" bindtap="onImport">导入</view>
+      <view class="tool-btn export-btn" bindtap="onExport">导出</view>
+    </view>
+  </view>
+
+  <scroll-view class="table-wrap glass-card" scroll-x>
+    <view class="table-inner">
+      <view class="t-row t-head">
+        <view class="t-cell c-name">姓名</view>
+        <view class="t-cell c-code">学号</view>
+        <view class="t-cell c-college">公司</view>
+        <view class="t-cell c-class">班级</view>
+        <view class="t-cell c-status">身份</view>
+        <view class="t-cell c-st">状态</view>
+      </view>
+      <view class="t-row" wx:for="{{list}}" wx:key="id">
+        <view class="t-cell c-name">{{item.name}}</view>
+        <view class="t-cell c-code">{{item.studentId}}</view>
+        <view class="t-cell c-college">{{item.college}}</view>
+        <view class="t-cell c-class">{{item.className}}</view>
+        <view class="t-cell c-status">{{item.identity}}</view>
+        <view class="t-cell c-st">{{item.status}}</view>
+      </view>
+      <view class="empty-row" wx:if="{{list.length === 0}}">暂无数据，点击「导入」添加</view>
+    </view>
+  </scroll-view>
+
+  <view class="tpl-tip glass-card">
+    <view class="tpl-title">📄 导入模板</view>
+    <view class="tpl-line" bindtap="onDownloadTemplate">• 下载助教导入模板</view>
+    <view class="tpl-desc">助教表：学号、姓名、公司名称、周次、开始节次、结束节次、班内编号、原始专业</view>
+  </view>
+</view>

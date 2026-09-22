@@ -1,0 +1,58 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">用户与权限管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <!-- 筛选区 -->
+  <view class="filter-card glass-card">
+    <input class="search-input" placeholder="搜索用户名/姓名" placeholder-style="color:#999" value="{{keyword}}" bindinput="onSearchInput" />
+    <view class="role-tabs">
+      <view class="tab-item {{roleFilter === '' ? 'tab-active' : ''}}" data-role="" bindtap="onRoleTap">全部</view>
+      <view class="tab-item {{roleFilter === 'SUPER_ADMIN' ? 'tab-active' : ''}}" data-role="SUPER_ADMIN" bindtap="onRoleTap">超管</view>
+      <view class="tab-item {{roleFilter === 'TEACHER' ? 'tab-active' : ''}}" data-role="TEACHER" bindtap="onRoleTap">教师</view>
+      <view class="tab-item {{roleFilter === 'ASSISTANT' ? 'tab-active' : ''}}" data-role="ASSISTANT" bindtap="onRoleTap">助教</view>
+    </view>
+    <view class="create-btn weave-btn" bindtap="onCreateTeacher">+ 新建教师账号</view>
+  </view>
+
+  <!-- 用户列表 -->
+  <view class="user-list" wx:if="{{filteredList.length > 0}}">
+    <view class="user-card glass-card" wx:for="{{filteredList}}" wx:key="id">
+      <view class="user-head">
+        <view class="user-name">{{item.realName}}</view>
+        <view class="role-tag tag-{{item.role}}">{{item.roleName}}</view>
+      </view>
+      <view class="user-meta">用户名：{{item.username}}</view>
+      <view class="user-meta tiny">创建时间：{{item.createTime}}</view>
+      <view class="user-ops">
+        <view class="op-btn op-detail" data-index="{{index}}" bindtap="onViewDetail">详情</view>
+        <view class="op-btn {{item.status === 'enabled' ? 'op-disable' : 'op-enable'}}" data-index="{{index}}" bindtap="onToggleStatus">
+          {{item.status === 'enabled' ? '停用' : '启用'}}
+        </view>
+        <view class="op-btn op-reset" data-index="{{index}}" bindtap="onResetPwd">重置密码</view>
+      </view>
+    </view>
+  </view>
+  <view class="empty-card glass-card" wx:else>暂无用户数据</view>
+
+  <!-- 用户详情弹窗 -->
+  <view class="modal-mask" wx:if="{{detailVisible}}" bindtap="hideDetail"></view>
+  <view class="modal-panel {{detailVisible ? 'modal-show' : 'modal-hide'}}">
+    <view class="modal-title">用户详情</view>
+    <view class="detail-row" wx:if="{{detailUser}}"><text class="dl-label">用户名</text><text class="dl-val">{{detailUser.username}}</text></view>
+    <view class="detail-row" wx:if="{{detailUser}}"><text class="dl-label">姓名</text><text class="dl-val">{{detailUser.realName}}</text></view>
+    <view class="detail-row" wx:if="{{detailUser}}"><text class="dl-label">角色</text><text class="dl-val">{{detailUser.roles}}</text></view>
+    <view class="detail-row" wx:if="{{detailUser}}"><text class="dl-label">状态</text><text class="dl-val">{{detailUser.status}}</text></view>
+    <view class="detail-row" wx:if="{{detailUser}}"><text class="dl-label">首次登录</text><text class="dl-val">{{detailUser.firstLogin}}</text></view>
+    <view class="detail-row" wx:if="{{detailUser}}"><text class="dl-label">上次改密</text><text class="dl-val">{{detailUser.lastPasswordChangeTime}}</text></view>
+    <view class="detail-row" wx:if="{{detailUser}}"><text class="dl-label">创建时间</text><text class="dl-val">{{detailUser.createdAt}}</text></view>
+    <view class="modal-btns">
+      <view class="modal-btn confirm" bindtap="hideDetail">关闭</view>
+    </view>
+  </view>
+</view>

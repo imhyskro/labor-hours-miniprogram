@@ -1,0 +1,90 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">学生数据管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="toolbar glass-card">
+    <view class="search-box">
+      <input class="search-input" placeholder="搜索姓名 / 学号" value="{{keyword}}" bindinput="onSearch"/>
+    </view>
+    <view class="tool-btns">
+      <view class="tool-btn add-btn" bindtap="onAdd">新增</view>
+      <view class="tool-btn import-btn" bindtap="onImport">导入</view>
+      <view class="tool-btn export-btn" bindtap="onExport">导出</view>
+    </view>
+  </view>
+
+  <scroll-view class="table-wrap glass-card" scroll-x>
+    <view class="table-inner">
+      <view class="t-row t-head">
+        <view class="t-cell c-name">姓名</view>
+        <view class="t-cell c-code">学号</view>
+        <view class="t-cell c-college">公司</view>
+        <view class="t-cell c-class">班级</view>
+        <view class="t-cell c-status">身份</view>
+        <view class="t-cell c-act">操作</view>
+      </view>
+      <view class="t-row" wx:for="{{list}}" wx:key="id">
+        <view class="t-cell c-name">{{item.name}}</view>
+        <view class="t-cell c-code">{{item.code}}</view>
+        <view class="t-cell c-college">{{item.college}}</view>
+        <view class="t-cell c-class">{{item.className}}</view>
+        <view class="t-cell c-status">{{item.identity}}</view>
+        <view class="t-cell c-act">
+          <view class="row-btn edit" data-idx="{{index}}" bindtap="onEdit">编辑</view>
+          <view class="row-btn del" data-idx="{{index}}" bindtap="onDelete">删除</view>
+        </view>
+      </view>
+      <view class="empty-row" wx:if="{{list.length === 0}}">暂无数据，点击「新增」或「导入」添加</view>
+    </view>
+  </scroll-view>
+
+  <!-- 新增/编辑弹窗 -->
+  <view class="modal-mask" wx:if="{{modalVisible}}" bindtap="hideModal"></view>
+  <view class="modal-panel {{modalVisible ? 'modal-show' : 'modal-hide'}}">
+    <view class="modal-title">{{modalMode === 'add' ? '新增学生' : '编辑学生'}}</view>
+    <view class="modal-field">
+      <text class="modal-label">学号 *</text>
+      <input class="modal-input" value="{{form.studentId}}" bindinput="onFormStudentId" placeholder="如 S2026001" />
+    </view>
+    <view class="modal-field">
+      <text class="modal-label">姓名 *</text>
+      <input class="modal-input" value="{{form.name}}" bindinput="onFormName" placeholder="姓名" />
+    </view>
+    <view class="modal-field">
+      <text class="modal-label">班级 *</text>
+      <picker mode="selector" range="{{classOptions}}" value="{{form.classIndex}}" bindchange="onFormClassChange">
+        <view class="modal-picker">
+          <text>{{classOptions[form.classIndex] || '请选择'}}</text>
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+    <view class="modal-field">
+      <text class="modal-label">班内编号</text>
+      <input class="modal-input" type="number" value="{{form.studentNoInClass}}" bindinput="onFormNoInClass" placeholder="如 1" />
+    </view>
+    <view class="modal-field">
+      <text class="modal-label">原始专业</text>
+      <input class="modal-input" value="{{form.originalMajor}}" bindinput="onFormMajor" placeholder="选填" />
+    </view>
+    <view class="modal-field">
+      <text class="modal-label">性别</text>
+      <picker mode="selector" range="{{genderOptions}}" value="{{form.gender === 2 ? 1 : 0}}" bindchange="onFormGenderChange">
+        <view class="modal-picker">
+          <text>{{form.gender === 2 ? '女' : '男'}}</text>
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+    <view class="modal-btns">
+      <view class="modal-btn cancel" bindtap="hideModal">取消</view>
+      <view class="modal-btn confirm" bindtap="confirmForm">保存</view>
+    </view>
+  </view>
+</view>

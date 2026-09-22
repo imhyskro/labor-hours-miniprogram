@@ -1,0 +1,46 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">公司管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="add-bar">
+    <button class="add-btn" bindtap="onAdd">+ 新增公司</button>
+  </view>
+
+  <view class="company-list">
+    <view class="company-card glass-card" wx:for="{{companies}}" wx:key="id">
+      <view class="company-info">
+        <view class="company-name">{{item.name}}</view>
+        <view class="company-meta">
+          <text class="meta-item">班级数 {{item.classCount}}</text>
+          <text class="meta-item" wx:if="{{item.createdAt}}">{{item.createdAt}}</text>
+        </view>
+      </view>
+      <view class="company-actions">
+        <view class="action-btn rename-btn" data-idx="{{index}}" bindtap="onRename">改名</view>
+        <view class="action-btn del-btn" data-idx="{{index}}" bindtap="onDelete">删除</view>
+      </view>
+    </view>
+    <view class="list-bottom" wx:if="{{companies.length}}">共 {{companies.length}} 家公司</view>
+    <view class="list-bottom" wx:else>暂无公司数据</view>
+  </view>
+
+  <!-- 弹窗 -->
+  <view class="modal-mask" wx:if="{{modalVisible}}" bindtap="hideModal"></view>
+  <view class="modal-panel {{modalVisible ? 'modal-show' : 'modal-hide'}}">
+    <view class="modal-title">{{modalMode === 'add' ? '新增公司' : '公司改名'}}</view>
+    <view class="modal-field">
+      <text class="modal-label">公司名称</text>
+      <input class="modal-input" value="{{editName}}" bindinput="onNameInput" placeholder="请输入公司名称" focus="{{modalVisible}}" />
+    </view>
+    <view class="modal-btns">
+      <view class="modal-btn cancel" bindtap="hideModal">取消</view>
+      <view class="modal-btn confirm" bindtap="confirmModal">保存</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,81 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">班级管理</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="filter-card glass-card">
+    <view class="filter-label">选择班级</view>
+    <picker mode="selector" range="{{classOptions}}" value="{{classIndex}}" bindchange="onClassChange">
+      <view class="picker-value">
+        <text>{{classOptions[classIndex] || '暂无班级'}}</text>
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+    <view class="btn-row">
+      <view class="mini-btn add-btn" bindtap="onAddClass">+ 新增</view>
+      <view class="mini-btn edit-btn" wx:if="{{isSuperAdmin && classList.length}}" bindtap="onEditClass">编辑</view>
+      <view class="mini-btn del-btn" wx:if="{{isSuperAdmin && classList.length}}" bindtap="onDeleteClass">删除</view>
+    </view>
+  </view>
+
+  <view class="table-card glass-card">
+    <view class="table-header">
+      <view class="th th-id">学号</view>
+      <view class="th th-name">姓名</view>
+      <view class="th th-score">当前学时</view>
+    </view>
+    <view class="table-body" wx:if="{{filteredList.length > 0}}">
+      <view class="table-row" wx:for="{{filteredList}}" wx:key="id">
+        <view class="td td-id">{{item.studentId}}</view>
+        <view class="td td-name">{{item.name}}</view>
+        <view class="td td-score">{{item.score || '—'}}</view>
+      </view>
+    </view>
+    <view class="empty-row" wx:else>暂无数据</view>
+  </view>
+
+  <!-- 新增/编辑班级弹窗 -->
+  <view class="modal-mask" wx:if="{{modalVisible}}" bindtap="hideModal"></view>
+  <view class="modal-panel {{modalVisible ? 'modal-show' : 'modal-hide'}}">
+    <view class="modal-title">{{modalMode === 'add' ? '新增班级' : '编辑班级'}}</view>
+    <view class="modal-field" wx:if="{{modalMode === 'add' && isSuperAdmin}}">
+      <text class="modal-label">公司 *</text>
+      <picker mode="selector" range="{{companyOptions}}" value="{{form.companyIndex}}" bindchange="onFormCompanyChange">
+        <view class="modal-picker">
+          <text>{{companyOptions[form.companyIndex] || '请选择'}}</text>
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+    <view class="modal-field">
+      <text class="modal-label">周次 *</text>
+      <input class="modal-input" type="number" value="{{form.week}}" bindinput="onFormWeek" placeholder="如 1" />
+    </view>
+    <view class="modal-field">
+      <text class="modal-label">开始节次 *</text>
+      <input class="modal-input" type="number" value="{{form.startSession}}" bindinput="onFormStart" placeholder="如 1" />
+    </view>
+    <view class="modal-field">
+      <text class="modal-label">结束节次 *</text>
+      <input class="modal-input" type="number" value="{{form.endSession}}" bindinput="onFormEnd" placeholder="如 2" />
+    </view>
+    <view class="modal-field" wx:if="{{modalMode === 'edit'}}">
+      <text class="modal-label">状态</text>
+      <picker mode="selector" range="{{['在读', '停用']}}" value="{{form.status === 1 ? 0 : 1}}" bindchange="onFormStatusChange">
+        <view class="modal-picker">
+          <text>{{form.status === 1 ? '在读' : '停用'}}</text>
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+    <view class="modal-btns">
+      <view class="modal-btn cancel" bindtap="hideModal">取消</view>
+      <view class="modal-btn confirm" bindtap="confirmForm">保存</view>
+    </view>
+  </view>
+</view>

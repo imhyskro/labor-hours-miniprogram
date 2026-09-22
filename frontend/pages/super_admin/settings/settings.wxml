@@ -1,0 +1,33 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack"><text class="back-icon">‹</text></view>
+    <view class="nav-title">系统设置</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="settings-card glass-card">
+    <view class="settings-title">⚠️ 数据管理</view>
+    <view class="settings-desc">以下操作将影响本地存储的所有业务数据，请谨慎操作。</view>
+
+    <view class="setting-btn danger-btn" bindtap="onClearAll">
+      <text class="btn-emoji">🗑️</text>
+      <view class="btn-text">
+        <view class="btn-title">一键清空所有测试数据</view>
+        <view class="btn-sub">清空本地存储的全部数据</view>
+      </view>
+    </view>
+
+    <view class="setting-btn reset-btn" bindtap="onResetDefault">
+      <text class="btn-emoji">🔄</text>
+      <view class="btn-text">
+        <view class="btn-title">恢复系统默认配置</view>
+        <view class="btn-sub">重置为初始 mock 数据</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer-tip">劳动课学时管理 · 超级管理员端</view>
+</view>

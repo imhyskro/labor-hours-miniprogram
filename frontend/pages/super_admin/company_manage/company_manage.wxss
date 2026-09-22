@@ -1,0 +1,40 @@
+.page-container { min-height: 100vh; position: relative; }
+.bg-image { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; }
+.bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.15) 100%); z-index: -1; }
+page { padding-bottom: 60rpx; }
+
+.custom-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 32rpx; height: 88rpx; margin-top: env(safe-area-inset-top); position: relative; z-index: 1; }
+.nav-back { width: 64rpx; height: 64rpx; display: flex; align-items: center; justify-content: center; }
+.back-icon { font-size: 56rpx; color: #fff; font-weight: 300; }
+.nav-title { font-size: 34rpx; font-weight: 600; color: #fff; }
+.nav-placeholder { width: 64rpx; }
+
+.glass-card { background-color: rgba(255,255,255,0.25); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); border-radius: 28rpx; box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06); }
+
+.add-bar { padding: 24rpx 32rpx 0; }
+.add-btn { background: rgba(74, 107, 58, 0.85); color: #fff; font-size: 28rpx; border-radius: 40rpx; height: 80rpx; line-height: 80rpx; }
+
+.company-list { padding: 24rpx 32rpx; }
+.company-card { display: flex; align-items: center; padding: 28rpx; margin-bottom: 16rpx; }
+.company-info { flex: 1; }
+.company-name { font-size: 32rpx; font-weight: 600; color: #2d4a1f; }
+.company-meta { display: flex; gap: 20rpx; margin-top: 10rpx; }
+.meta-item { font-size: 22rpx; color: #888; }
+.company-actions { display: flex; flex-direction: column; gap: 10rpx; }
+.action-btn { height: 52rpx; line-height: 52rpx; padding: 0 20rpx; font-size: 22rpx; border-radius: 26rpx; text-align: center; }
+.rename-btn { background: rgba(74, 107, 58, 0.85); color: #fff; }
+.del-btn { background: rgba(201, 62, 57, 0.85); color: #fff; }
+.list-bottom { text-align: center; color: #999; font-size: 24rpx; padding: 32rpx 0; }
+
+.modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 100; }
+.modal-panel { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 600rpx; background: #fff; border-radius: 24rpx; padding: 40rpx; z-index: 101; }
+.modal-show { opacity: 1; }
+.modal-hide { opacity: 0; pointer-events: none; }
+.modal-title { font-size: 32rpx; font-weight: 600; color: #2d4a1f; text-align: center; }
+.modal-field { margin-top: 28rpx; }
+.modal-label { font-size: 26rpx; color: #333; display: block; margin-bottom: 10rpx; }
+.modal-input { height: 80rpx; border: 1rpx solid #e0e0e0; border-radius: 12rpx; padding: 0 20rpx; font-size: 28rpx; }
+.modal-btns { display: flex; gap: 20rpx; margin-top: 36rpx; }
+.modal-btn { flex: 1; height: 80rpx; line-height: 80rpx; text-align: center; border-radius: 40rpx; font-size: 28rpx; }
+.cancel { background: #f5f5f5; color: #666; }
+.confirm { background: #4A6B3A; color: #fff; }

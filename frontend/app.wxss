@@ -1,0 +1,17 @@
+/* 全局蓝色主题变量 */
+page {
+  --primary-color: #1E88E5;
+  --primary-dark: #1565C0;
+  --primary-light: #E3F2FD;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --border-color: #E0E0E0;
+  --bg-color: #F5F7FA;
+  background-color: var(--bg-color);
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+.container {
+  min-height: 100vh;
+  box-sizing: border-box;
+}

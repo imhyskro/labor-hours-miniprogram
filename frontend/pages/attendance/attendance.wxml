@@ -1,0 +1,79 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="page-header">
+    <view class="page-title">考勤记录</view>
+    <view class="page-sub">{{className}}</view>
+  </view>
+
+  <!-- 课次选择 + 操作 -->
+  <view class="session-bar glass-card">
+    <picker mode="selector" range="{{sessionOptions}}" value="{{sessionIndex}}" bindchange="onSessionChange">
+      <view class="session-picker">
+        <text class="session-label">课次</text>
+        <text class="session-value">{{sessionOptions[sessionIndex] || '暂无课次'}}</text>
+        <text class="arrow">›</text>
+      </view>
+    </picker>
+    <view class="session-actions">
+      <view class="session-btn" bindtap="onCreateSession">+ 新建</view>
+      <view class="session-btn seal-btn" wx:if="{{sessionList.length > 0}}" bindtap="onSealSession">封存</view>
+      <view class="session-btn" bindtap="onExportRecords">导出</view>
+    </view>
+  </view>
+
+  <view class="student-list">
+    <view class="student-card glass-card {{item.highlight ? 'card-highlight' : ''}}"
+          wx:for="{{students}}" wx:key="id"
+          id="student-{{item.id}}">
+      <view class="student-info">
+        <view class="info-name-row">
+          <text class="info-name">{{item.name}}</text>
+        </view>
+        <view class="info-id">{{item.studentNo}}</view>
+        <view class="info-meta" wx:if="{{item.studentNoInClass}}">
+          <text>班内编号 {{item.studentNoInClass}}</text>
+        </view>
+      </view>
+
+      <view class="student-ops">
+        <view class="score-box {{activeIdx === index ? 'score-active' : ''}}"
+              data-idx="{{index}}"
+              bindtap="onScoreTap">
+          <text class="score-text">{{item.inputScore || ''}}</text>
+        </view>
+        <view class="modify-btn" data-idx="{{index}}" bindtap="onGoModify">修改</view>
+        <view class="modify-btn del-rec" data-idx="{{index}}" bindtap="onDeleteRecord">删除</view>
+      </view>
+    </view>
+    <view class="list-bottom" wx:if="{{students.length}}">共 {{students.length}} 名学生</view>
+    <view class="list-bottom" wx:else>暂无学生数据</view>
+  </view>
+
+  <view class="keyboard-mask" wx:if="{{keyboardVisible}}" bindtap="onHideKeyboard"></view>
+
+  <view class="keyboard-panel {{keyboardVisible ? 'keyboard-show' : 'keyboard-hide'}}">
+    <view class="keyboard-title">考勤打分</view>
+    <view class="keyboard-grid">
+      <block wx:for="{{keys}}" wx:key="*this">
+        <view wx:if="{{item === 'del'}}"
+              class="key-item key-del"
+              data-key="del"
+              catchtap="onKeyTap">删除</view>
+        <view wx:elif="{{item === 'confirm'}}"
+              class="key-item key-confirm"
+              data-key="confirm"
+              catchtap="onKeyTap">确认</view>
+        <view wx:else
+              class="key-item weave-key"
+              data-key="{{item}}"
+              catchtap="onKeyTap">{{item}}</view>
+      </block>
+    </view>
+    <view class="buffer-preview" wx:if="{{keyboardVisible}}">
+      <text class="buffer-label">当前输入：</text>
+      <text class="buffer-value">{{bufferScore || '—'}}</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,43 @@
+<view class="page-container">
+  <!-- 背景层 -->
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <!-- 顶部标题 -->
+  <view class="page-header">
+    <view class="page-title">待打分课程</view>
+    <view class="page-sub" wx:if="{{pendingList.length}}">有效期内共有 {{pendingList.length}} 个班级待打分</view>
+    <view class="page-sub" wx:else>暂无待打分课程</view>
+  </view>
+
+  <!-- 待打分列表 -->
+  <view class="score-list" wx:if="{{pendingList.length}}">
+    <view class="score-card glass-card"
+          wx:for="{{pendingList}}" wx:key="sessionId"
+          data-index="{{index}}"
+          bindtap="onItemTap">
+      <view class="card-main">
+        <view class="card-title">{{item.className}}</view>
+        <view class="card-meta">
+          <text class="meta-week">周{{item.weekNo}}</text>
+          <text class="meta-sep">·</text>
+          <text class="meta-date">{{item.sessionDate}}</text>
+        </view>
+        <view class="card-footer">
+          <text class="unscored-tag">{{item.unscoredCount}} 人未打分</text>
+        </view>
+      </view>
+      <view class="card-action">
+        <view class="go-btn">去打分</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <view class="empty-icon">✓</view>
+    <view class="empty-text">所有课程已打分</view>
+  </view>
+
+  <view class="footer-tip">仅供高校教学管理使用</view>
+</view>

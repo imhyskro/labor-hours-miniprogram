@@ -1,0 +1,229 @@
+/* 容器：min-height + 原生页面滚动 */
+.page-container {
+  position: relative;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 背景层：fixed 让背景在滚动时保持不动 */
+.bg-image {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -2;
+}
+
+.bg-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.15) 100%);
+  z-index: -1;
+}
+
+/* 通用毛玻璃卡片 */
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 顶部 */
+.page-header {
+  padding: 48rpx 48rpx 24rpx;
+  text-align: center;
+}
+
+.page-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.3);
+}
+
+.page-sub {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 申请列表（原生滚动） */
+.apply-list {
+  padding: 0 32rpx 60rpx;
+  box-sizing: border-box;
+}
+
+.apply-card {
+  padding: 36rpx;
+  margin-bottom: 28rpx;
+}
+
+/* 卡片顶部 */
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 24rpx;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.student-block {
+  flex: 1;
+}
+
+.student-name {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #2d4a1f;
+  margin-bottom: 8rpx;
+}
+
+.student-id {
+  font-size: 24rpx;
+  color: #666666;
+  margin-bottom: 8rpx;
+}
+
+.student-meta {
+  font-size: 24rpx;
+  color: #888888;
+}
+
+.meta-sep {
+  margin: 0 8rpx;
+}
+
+/* 状态标签 */
+.status-tag {
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  font-weight: 500;
+}
+
+.status-pending {
+  background: rgba(255, 193, 7, 0.85);
+  color: #ffffff;
+}
+
+.status-approved {
+  background: rgba(76, 175, 80, 0.85);
+  color: #ffffff;
+}
+
+.status-modified {
+  background: rgba(46, 125, 50, 0.95);
+  color: #ffffff;
+}
+
+.status-rejected {
+  background: rgba(244, 67, 54, 0.85);
+  color: #ffffff;
+}
+
+.status-draft {
+  background: rgba(158, 158, 158, 0.85);
+  color: #ffffff;
+}
+
+/* 详情 */
+.card-detail {
+  padding: 24rpx 0;
+}
+
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.detail-label {
+  width: 160rpx;
+  font-size: 26rpx;
+  color: #666666;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333333;
+  line-height: 1.5;
+}
+
+/* 考勤分数徽章 */
+.score-badge {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #999999;
+}
+
+.score-current {
+  color: #2E7D32;
+}
+
+/* 倒计时文案 */
+.countdown-text {
+  color: #E65100;
+  font-weight: 500;
+}
+
+/* 操作按钮 */
+.card-ops {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20rpx;
+  padding-top: 16rpx;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.op-btn {
+  height: 60rpx;
+  line-height: 60rpx;
+  padding: 0 32rpx;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
+.op-revoke {
+  background: rgba(255, 193, 7, 0.85);
+  color: #ffffff;
+}
+
+.op-approve {
+  background: rgba(74, 107, 58, 0.9);
+  color: #ffffff;
+}
+
+.op-modify {
+  background: rgba(74, 107, 58, 0.9);
+  color: #ffffff;
+}
+
+.op-submit {
+  background: rgba(74, 107, 58, 0.9);
+  color: #ffffff;
+}
+
+.op-modified-tag {
+  background: rgba(158, 158, 158, 0.6);
+  color: #ffffff;
+}
+
+.op-btn:active {
+  opacity: 0.85;
+}
+
+/* 列表底部 */
+.list-bottom {
+  padding: 24rpx 0 60rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.3);
+}

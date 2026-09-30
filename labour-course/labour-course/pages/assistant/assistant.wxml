@@ -1,0 +1,51 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="onBack">
+      <text class="back-icon">‹</text>
+    </view>
+    <view class="nav-title">助教工作台</view>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="header">
+    <view class="welcome">欢迎，{{userInfo.realName || userInfo.username || ''}}</view>
+    <view class="role-tag">助教</view>
+  </view>
+
+  <view class="glass-card">
+    <view class="card-title">班级选择</view>
+    <view class="card-sub" wx:if="{{fromRemind}}">检测到有待打分的班级，请尽快处理</view>
+
+    <view class="form-item" wx:if="{{classOptions.length}}">
+      <view class="label">负责班级</view>
+      <picker mode="selector" range="{{classOptions}}" value="{{classIndex}}" bindchange="onClassChange">
+        <view class="picker-value">
+          <view class="picker-text-wrap">
+            <text class="pending-dot" wx:if="{{currentClass.hasPending}}"></text>
+            <text>{{classOptions[classIndex] || '请选择班级'}}</text>
+          </view>
+          <text class="arrow">›</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="class-preview" wx:if="{{currentClass.id}}">
+      <view class="preview-name">{{currentClass.className}}</view>
+      <view class="preview-meta">
+        <text wx:if="{{currentClass.companyName}}">{{currentClass.companyName}}</text>
+        <text wx:if="{{currentClass.week}}"> · 周{{currentClass.week}}</text>
+        <text wx:if="{{currentClass.startSession}}"> · 第{{currentClass.startSession}}~{{currentClass.endSession}}节</text>
+      </view>
+      <view class="preview-status {{currentClass.hasPending ? 'pending' : 'done'}}">
+        {{currentClass.hasPending ? '● 有待打分课次' : '○ 暂无待办'}}
+      </view>
+    </view>
+
+    <button class="weave-btn" bindtap="onEnterClass">进入班级</button>
+  </view>
+
+  <view class="footer-tip">劳动课学时管理 · 助教端</view>
+</view>

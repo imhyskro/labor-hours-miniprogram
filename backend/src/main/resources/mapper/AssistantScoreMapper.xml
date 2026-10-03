@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labor.management.mapper.AssistantScoreMapper">
+
+    <!--
+      按「助教 + 班级 + 第几次课」查询打分记录（含已逻辑删除记录，绕过 @TableLogic）。
+      唯一键 uk_assistant_class_session 不含 deleted，已删记录仍占键。
+    -->
+    <select id="selectByAssistantClassSessionIncludeDeleted"
+            resultType="com.labor.management.entity.AssistantScore">
+        SELECT * FROM assistant_score
+        WHERE assistant_student_id = #{assistantStudentId}
+          AND class_id = #{classId}
+          AND session_no = #{sessionNo}
+        LIMIT 1
+    </select>
+
+    <!--
+      分页查询当前用户范围内的助教打分行。
+
+      核心逻辑：
+        1. 派生表 m：JOIN assistant_class 按 scopeClassIds 过滤后 GROUP BY 取每助教 MIN(class_id) 作主班
+        2. JOIN student + classes + company 补充班级/公司详情
+        3. 一助教一行（GROUP BY s.id 已在派生表里完成）
+
+      scopeClassIds 语义：
+        null → 超管，不限制（查所有有 assistant_class 关联的助教）
+        空 List → 教师但无负责班，返回空
+        非空 List → 教师范围过滤
+    -->
+    <select id="pageScopedAssistants"
+            resultType="com.labor.management.vo.AssistantScoreRowVO">
+        SELECT
+            s.id                                          AS id,
+            s.student_id                                  AS studentId,
+            s.name                                        AS name,
+            s.gender                                      AS gender,
+            s.original_major                              AS originalMajor,
+            s.student_no_in_class                         AS studentNoInClass,
+            m.scoring_class_id                            AS scoringClassId,
+            c.class_name                                  AS className,
+            c.class_code                                  AS classCode,
+            c.week                                        AS week,
+            c.start_session                               AS startSession,
+            c.end_session                                 AS endSession,
+            comp.id                                       AS companyId,
+            comp.name                                     AS companyName,
+            s.is_assistant                                AS isAssistant,
+            'ASSISTANT'                                   AS identity
+        FROM student s
+        JOIN (
+            SELECT ac.assistant_student_id AS assistant_id,
+                   MIN(ac.class_id)        AS scoring_class_id
+            FROM assistant_class ac
+            WHERE ac.deleted = 0
+            <if test="scopeClassIds != null">
+                <choose>
+                    <when test="scopeClassIds.size() == 0">
+                        AND 1 = 0
+                    </when>
+                    <otherwise>
+                        AND ac.class_id IN
+                        <foreach collection="scopeClassIds" item="cid" open="(" separator="," close=")">
+                            #{cid}
+                        </foreach>
+                    </otherwise>
+                </choose>
+            </if>
+            GROUP BY ac.assistant_student_id
+        ) m ON m.assistant_id = s.id
+        LEFT JOIN classes  c    ON c.id    = m.scoring_class_id AND c.deleted = 0
+        LEFT JOIN company comp ON comp.id = c.company_id       AND comp.deleted = 0
+        WHERE s.deleted = 0
+          AND s.is_assistant = 1
+        <if test="keyword != null and keyword != ''">
+            AND (s.student_id LIKE CONCAT('%', #{keyword}, '%')
+                 OR s.name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY comp.sort_order, c.week, c.start_session, s.student_no_in_class, s.id
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 计数当前用户范围内去重后的助教数 -->
+    <select id="countScopedAssistants" resultType="long">
+        SELECT COUNT(DISTINCT s.id)
+        FROM student s
+        JOIN assistant_class ac ON ac.assistant_student_id = s.id AND ac.deleted = 0
+        WHERE s.deleted = 0
+          AND s.is_assistant = 1
+        <if test="scopeClassIds != null">
+            <choose>
+                <when test="scopeClassIds.size() == 0">
+                    AND 1 = 0
+                </when>
+                <otherwise>
+                    AND ac.class_id IN
+                    <foreach collection="scopeClassIds" item="cid" open="(" separator="," close=")">
+                        #{cid}
+                    </foreach>
+                </otherwise>
+            </choose>
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (s.student_id LIKE CONCAT('%', #{keyword}, '%')
+                 OR s.name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+
+</mapper>

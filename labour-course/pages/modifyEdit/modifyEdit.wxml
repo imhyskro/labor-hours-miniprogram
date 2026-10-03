@@ -1,0 +1,56 @@
+<view class="page-container">
+  <!-- 背景层 -->
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <!-- 顶部标题 -->
+  <view class="page-header">
+    <view class="page-title">编辑修改申请</view>
+    <view class="page-sub" wx:if="{{studentId}}">{{studentName}}（{{studentId}}）</view>
+  </view>
+
+  <!-- 表单卡片 -->
+  <view class="form-card glass-card">
+    <!-- 学生信息预填（只读展示） -->
+    <view class="form-item" wx:if="{{studentId}}">
+      <view class="label">学生信息</view>
+      <view class="readonly-row">
+        <text class="readonly-text strong">{{studentName}}</text>
+        <text class="readonly-sep" wx:if="{{studentNo}}">·</text>
+        <text class="readonly-text" wx:if="{{studentNo}}">{{studentNo}}</text>
+      </view>
+      <view class="readonly-sub" wx:if="{{college || major}}">
+        <text wx:if="{{grade}}">{{grade}}级</text>
+        <text wx:if="{{college}}" class="readonly-sep">·</text>
+        <text wx:if="{{college}}">{{college}}</text>
+        <text wx:if="{{major}}" class="readonly-sep">·</text>
+        <text wx:if="{{major}}">{{major}}</text>
+      </view>
+    </view>
+
+    <view class="form-item" wx:if="{{originScore}}">
+      <view class="label">原考勤</view>
+      <view class="readonly-row">
+        <text class="readonly-text score-badge">{{originScore}}</text>
+      </view>
+    </view>
+
+    <!-- 申请理由 -->
+    <view class="form-item">
+      <view class="label">申请理由</view>
+      <textarea class="textarea"
+                placeholder="请详细说明修改考勤的原因..."
+                value="{{applyReason}}"
+                bindinput="onReasonInput"
+                maxlength="200"
+                auto-height></textarea>
+      <view class="char-count">{{applyReason.length}}/200</view>
+    </view>
+
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-bar">
+    <button class="weave-btn" bindtap="onSubmit" loading="{{submitting}}" disabled="{{submitting}}">确定发送申请</button>
+  </view>
+</view>

@@ -1,0 +1,137 @@
+<view class="page-container">
+  <image class="bg-image" src="/images/wheat-field.jpg" mode="aspectFill"></image>
+  <view class="bg-overlay"></view>
+
+  <view class="page-header">
+    <view class="page-title">考勤记录</view>
+    <view class="page-sub">{{className}}</view>
+  </view>
+
+  <!-- 顶部搜索栏 -->
+  <view class="search-bar glass-card">
+    <icon type="search" size="16" color="#4A6B3A"/>
+    <input class="search-input"
+           type="text"
+           placeholder="按学号/姓名搜索学生"
+           value="{{searchKeyword}}"
+           bindinput="onSearchInput"
+           bindconfirm="onSearchConfirm"/>
+    <view class="search-go" bindtap="onSearchConfirm">定位</view>
+    <view class="search-exit" wx:if="{{searchKeyword}}" bindtap="onExitSearch">退出搜索</view>
+  </view>
+
+  <!-- 课次选择（自定义滑动选择器，支持红点提示） -->
+  <view class="session-bar glass-card">
+    <view class="session-picker" bindtap="onSessionPickerTap">
+      <text class="session-label">周次</text>
+      <view class="session-value-wrap">
+        <text class="pending-dot" wx:if="{{currentSession.unscoredCount > 0 && currentSession.editable}}"></text>
+        <text class="session-value">{{sessionOptions[sessionIndex] || '暂无课次'}}</text>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮组（独占一行） -->
+  <view class="action-bar">
+    <view class="session-btn batch-btn" wx:if="{{filteredStudents.length > 0 && currentSession.editable}}" bindtap="onBatchScore">一键打分</view>
+    <view class="session-btn" bindtap="onExportRecords">导出</view>
+  </view>
+
+  <view class="session-lock-tip" wx:if="{{currentSessionId && !currentSession.editable}}">
+    {{currentSession.lockReason || '当前周次仅供查看'}}
+  </view>
+
+  <view class="student-list">
+    <view class="student-card glass-card {{item.highlight ? 'card-highlight' : ''}}"
+          wx:for="{{filteredStudents}}" wx:key="id"
+          id="student-{{item.id}}">
+      <view class="student-info">
+        <view class="info-name-row">
+          <text class="info-name">{{item.name}}</text>
+          <text class="approval-tag tag-pending" wx:if="{{item.approvalStatus === 'pending'}}">需审批</text>
+          <text class="approval-tag tag-approved" wx:if="{{item.approvalStatus === 'approved'}}">待修改</text>
+          <text class="assistant-tag" wx:if="{{item.isAssistant}}">助教 已封存</text>
+        </view>
+        <view class="info-id">学号 {{item.studentNo}}</view>
+        <view class="info-meta">
+          <text wx:if="{{item.grade}}">{{item.grade}}级</text>
+          <text wx:if="{{item.college}}" class="meta-sep">·</text>
+          <text wx:if="{{item.college}}">{{item.college}}</text>
+          <text wx:if="{{item.major}}" class="meta-sep">·</text>
+          <text wx:if="{{item.major}}">{{item.major}}</text>
+        </view>
+      </view>
+
+      <view class="student-ops">
+        <view class="score-box {{activeIdx === index ? 'score-active' : ''}} {{item.isAssistant || (!currentSession.editable && item.approvalStatus !== 'approved') ? 'score-locked' : ''}}"
+              data-idx="{{index}}"
+              bindtap="onScoreTap">
+          <text class="score-text">{{item.inputScore || ''}}</text>
+        </view>
+        <view class="modify-btn" wx:if="{{!item.isAssistant && item.recordId && item.approvalStatus !== 'pending' && item.approvalStatus !== 'approved'}}" data-idx="{{index}}" bindtap="onGoModify">申请修改</view>
+      </view>
+    </view>
+    <view class="list-bottom" wx:if="{{filteredStudents.length}}">共 {{filteredStudents.length}} 名学生</view>
+    <view class="list-bottom" wx:else>暂无学生数据</view>
+  </view>
+
+  <!-- 底部保存按钮：提交打分并清除该班级待办状态 -->
+  <view class="bottom-save-bar" wx:if="{{filteredStudents.length && currentSession.editable}}">
+    <button class="save-btn weave-btn" bindtap="onSaveAll" loading="{{saving}}" disabled="{{saving}}">
+      {{saving ? '保存中...' : '保存并完成待办'}}
+    </button>
+  </view>
+
+  <view class="keyboard-mask" wx:if="{{keyboardVisible}}" bindtap="onHideKeyboard"></view>
+
+  <view class="keyboard-panel {{keyboardVisible ? 'keyboard-show' : 'keyboard-hide'}}">
+    <view class="keyboard-title">考勤打分</view>
+    <view class="keyboard-grid">
+      <block wx:for="{{keys}}" wx:key="*this">
+        <view wx:if="{{item === 'del'}}"
+              class="key-item key-del"
+              data-key="del"
+              catchtap="onKeyTap">删除</view>
+        <view wx:elif="{{item === 'confirm'}}"
+              class="key-item key-confirm"
+              data-key="confirm"
+              catchtap="onKeyTap">确认</view>
+        <view wx:else
+              class="key-item weave-key"
+              data-key="{{item}}"
+              catchtap="onKeyTap">{{item}}</view>
+      </block>
+    </view>
+    <view class="buffer-preview" wx:if="{{keyboardVisible}}">
+      <text class="buffer-label">当前输入：</text>
+      <text class="buffer-value">{{bufferScore || '—'}}</text>
+    </view>
+  </view>
+
+  <!-- 课次滑动选择器弹层（每项含红点） -->
+  <view class="session-picker-mask {{sessionPickerVisible ? 'show' : ''}}" bindtap="onSessionPickerCancel"></view>
+  <view class="session-picker-panel {{sessionPickerVisible ? 'show' : ''}}">
+    <view class="session-picker-header">
+      <text class="sp-cancel" bindtap="onSessionPickerCancel">取消</text>
+      <text class="sp-title">选择周次</text>
+      <text class="sp-ok" bindtap="onSessionPickerConfirm">确定</text>
+    </view>
+    <scroll-view scroll-y class="session-picker-scroll" scroll-into-view="ses-{{tempSessionIndex}}">
+      <view class="sp-option {{tempSessionIndex === index ? 'active' : ''}}"
+            wx:for="{{sessionList}}" wx:key="id"
+            id="ses-{{index}}"
+            data-index="{{index}}"
+            bindtap="onSessionOptionTap">
+        <view class="sp-option-main">
+          <text class="sp-option-name">周{{item.weekNo}}</text>
+          <text class="sp-option-meta" wx:if="{{item.sessionDate}}">{{item.sessionDate}}</text>
+          <text class="sp-option-status" wx:if="{{!item.editable}}">{{item.lockReason}}</text>
+        </view>
+        <view class="pending-dot" wx:if="{{item.unscoredCount > 0 && item.editable}}"></view>
+        <text class="sp-option-count" wx:if="{{item.unscoredCount > 0 && item.editable}}">{{item.unscoredCount}}人未打</text>
+        <text class="sp-option-check" wx:if="{{tempSessionIndex === index}}">✓</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>
